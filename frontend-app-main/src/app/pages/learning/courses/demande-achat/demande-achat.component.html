@@ -1,0 +1,197 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="Liste des Demandes d’Achat" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div id="demandesList">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row align-items-center g-2">
+                        <div class="col-lg-3 me-auto">
+                            <h6 class="card-title mb-0">
+                                Liste des Demandes
+                                <span class="badge bg-primary ms-1 align-baseline">{{demandesList.length}}</span>
+                            </h6>
+                        </div>
+                        <div class="col-xl-2 col-lg-3 col-sm-5">
+                            <div class="search-box">
+                                <input type="text" class="form-control search" placeholder="Rechercher..."
+                                    [(ngModel)]="term" (keyup)="filterData()">
+                                <i class="ri-search-line search-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body mt-3">
+                    <div class="table-responsive table-card">
+                        <table class="table table-centered align-middle table-custom-effect table-nowrap mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Formation</th>
+                                    <th>Demandeur</th>
+                                    <th>Email</th>
+                                    <th>Date Demande</th>
+                                    <th>Prix Final</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of demandesList; let i = index" id="d_{{data.id}}">
+                                    <td>#{{data.id}}</td>
+                                     <td>{{data.moduleTitre}}</td>
+                                    <td>{{data.apprenantNom}}</td>
+                                    <td>{{data.apprenantEmail}}</td>
+                                     <td>{{data.dateDemande | date:'short'}}</td>
+                                    <td>{{data.prixFinal}}</td>
+                                   
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox"
+                                                [id]="'statusSwitch' + data.id" [checked]="data.statut === 'ACCEPTEE'"
+                                                (change)="toggleStatut(data, $event)">
+                                            <label class="form-check-label" [for]="'statusSwitch' + data.id">
+                                                <span class="badge" [ngClass]="{
+              'bg-warning': data.statut === 'EN_ATTENTE',
+              'bg-success': data.statut === 'ACCEPTEE',
+              'bg-danger': data.statut === 'REFUSEE'
+            }">
+                                                    {{ data.statut === 'EN_ATTENTE' ? 'En attente' : data.statut ===
+                                                    'ACCEPTEE' ? 'Acceptée' : 'Refusée' }}
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <ul class="d-flex gap-2 list-unstyled mb-0">
+                                            <li>
+                                                <button class="btn btn-subtle-danger btn-icon btn-sm"
+                                                    (click)="removeDemande(data.id!)" title="Supprimer">
+                                                    <i class="ph-trash"></i>
+                                                </button>
+                                            </li>
+      <li>
+  <button class="btn btn-subtle-primary btn-icon btn-sm"
+          (click)="viewDemandeDetails(data.id!)" title="Détails">
+    <i class="ph-eye"></i>
+  </button>
+</li>                            </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="noresult" [ngClass]="(demandesList.length != 0)?'d-none':''">
+                            <div class="text-center py-4">
+                                <i class="ph-magnifying-glass fs-1 text-primary"></i>
+                                <h5 class="mt-2">Aucun résultat trouvé</h5>
+                                <p class="text-muted mb-0">Nous avons recherché parmi {{demandesList.length}} demandes.
+                                    Aucune demande ne correspond à votre recherche.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Supprimer -->
+<div bsModal #deleteModal="bs-modal" id="deleteRecordModal" class="modal fade zoomIn">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" (click)="deleteModal.hide()"></button>
+      </div>
+      <div class="modal-body p-md-5 text-center">
+        <i class="bi bi-trash display-5 text-danger"></i>
+        <h4 class="mt-4 mb-2">Êtes-vous sûr ?</h4>
+        <p class="text-muted">Voulez-vous vraiment supprimer cet enregistrement ?</p>
+        <div class="d-flex gap-2 justify-content-center mt-4">
+          <button type="button" class="btn btn-light" (click)="deleteModal.hide()">Fermer</button>
+          <button type="button" class="btn btn-danger" (click)="confirmDelete()">Oui, Supprimer !</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Détails de la Demande -->
+<div bsModal #viewDetailsModal="bs-modal" class="modal fade">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content border-0">
+      <div class="modal-header">
+        <h5 class="modal-title">Détails de la Demande</h5>
+        <button type="button" class="btn-close" (click)="viewDetailsModal.hide()"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedDemande">
+        <div class="row">
+          <div class="col-lg-6">
+            <table class="table table-borderless">
+              <tbody>
+                <tr>
+                  <td class="fw-medium">ID :</td>
+                  <td>#{{selectedDemande.id}}</td>
+                </tr>
+                <tr>
+                  <td class="fw-medium">Apprenant :</td>
+                  <td>{{selectedDemande.apprenantNom}}</td>
+                </tr>
+                <tr>
+                  <td class="fw-medium">Email :</td>
+                  <td>{{selectedDemande.apprenantEmail}}</td>
+                </tr>
+                <tr>
+                  <td class="fw-medium">Téléphone :</td>
+                  <td>{{selectedDemande.phone || 'Non renseigné'}}</td>
+                </tr>
+                <tr>
+                  <td class="fw-medium">Adresse :</td>
+                  <td>{{selectedDemande.adress || 'Non renseignée'}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="col-lg-6">
+            <table class="table table-borderless">
+              <tbody>
+                <tr>
+                  <td class="fw-medium">Module :</td>
+                  <td>{{selectedDemande.moduleTitre}}</td>
+                </tr>
+                <tr>
+                  <td class="fw-medium">Date :</td>
+                  <td>{{selectedDemande.dateDemande}}</td>
+                </tr>
+                <tr>
+                  <td class="fw-medium">Prix :</td>
+                  <td>{{selectedDemande.prixFinal}}</td>
+                </tr>
+                <tr>
+                  <td class="fw-medium">Statut :</td>
+                  <td>
+                    <span class="badge" 
+                          [ngClass]="
+                            selectedDemande.statut === 'ACCEPTEE' ? 'bg-success' : 
+                            selectedDemande.statut === 'REFUSEE' ? 'bg-danger' : 
+                            'bg-warning'
+                          ">
+                      {{selectedDemande.statut}}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="viewDetailsModal.hide()">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>

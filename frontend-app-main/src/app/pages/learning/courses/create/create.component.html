@@ -1,0 +1,622 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="Create Course" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Create Course</h5>
+            </div>
+            <div class="card-body form-steps">
+                <form [formGroup]="courseForm">
+                    <div id="custom-progress-bar" class="progress-nav mb-4">
+                        <div class="progress" style="height: 1px;">
+                            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+
+                        <ng-stepper #cdkStepper [linear]="false" class="cdksteppercontent nav nav-pills progress-bar-tab custom-nav" (selectionChange)="updateProgressBar()">
+
+                            <!-- STEP 1: Course Details -->
+                            <cdk-step [optional]="false">
+                                <ng-template cdkStepLabel class="wizard-nav mb-5">
+                                    <button class="nav-link rounded-pill"
+                                            [class.active]="cdkStepper.selectedIndex === 0"
+                                            type="button">1</button>
+                                </ng-template>
+
+                                <div *ngIf="cdkStepper.selectedIndex === 0">
+                                    <h5 class="card-title mb-3 mt-3">Course Details</h5>
+                                    <div class="row g-3 align-items-center">
+                                        <!-- Course Title -->
+                                        <div class="col-lg-12">
+                                            <div>
+                                                <label for="course-title-input" class="form-label">
+                                                    Course title<span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text"
+                                                       id="course-title-input"
+                                                       class="form-control"
+                                                       [class.is-invalid]="isFieldInvalid('titre')"
+                                                       placeholder="Enter course title"
+                                                       formControlName="titre">
+                                                <div class="invalid-feedback" *ngIf="isFieldInvalid('titre')">
+                                                    {{ getFieldError('titre') }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Course Category -->
+                                        <div class="col-lg-6">
+                                            <div>
+                                                <label for="course-category-input" class="form-label">
+                                                    Course Category<span class="text-danger">*</span>
+                                                </label>
+                                                <select formControlName="category"
+                                                        id="course-category-input"
+                                                        class="form-select"
+                                                        [class.is-invalid]="isFieldInvalid('category')">
+                                                    <option value="" disabled selected>Select Category</option>
+                                                    <option *ngFor="let cat of categoryOptions" [value]="cat.id">{{ cat.nom }}</option>
+                                                </select>
+                                                <div class="invalid-feedback" *ngIf="isFieldInvalid('category')">
+                                                    {{ getFieldError('category') }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                       <!-- Course Level - FIXED -->
+                                        <div class="col-lg-6">
+                                            <div>
+                                                <label for="level-input" class="form-label">
+                                                    Course Level<span class="text-danger">*</span>
+                                                </label>
+                                                <select id="level-input"
+                                                        class="form-select"
+                                                        formControlName="level"
+                                                        [class.is-invalid]="isFieldInvalid('level')">
+                                                    <option *ngFor="let lvl of levelItems" [ngValue]="lvl.value">
+                                                        {{ lvl.name }}
+                                                    </option>
+                                                </select>
+                                                <div class="invalid-feedback" *ngIf="isFieldInvalid('level')">
+                                                    {{ getFieldError('level') }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Lecture Time -->
+                                        <div class="col-lg-4">
+                                            <div>
+                                                <label for="lecture-time-input" class="form-label">
+                                                    Lecture Time (HH:MM:SS) <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text"
+                                                       id="lecture-time-input"
+                                                       class="form-control"
+                                                       formControlName="lectureTime"
+                                                       placeholder="01:30:00"
+                                                       pattern="^([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
+                                                       [class.is-invalid]="isFieldInvalid('lectureTime')">
+                                                <div class="form-text">Format: Hours:Minutes:Seconds (e.g., 01:30:00)</div>
+                                                <div class="invalid-feedback" *ngIf="isFieldInvalid('lectureTime')">
+                                                    {{ getFieldError('lectureTime') }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Course Price -->
+                                        <div class="col-lg-4">
+                                            <div>
+                                                <label for="price-input" class="form-label">
+                                                    Course price<span class="text-danger">*</span>
+                                                </label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">$</span>
+                                                    <input type="number"
+                                                           class="form-control"
+                                                           id="price-input"
+                                                           [class.is-invalid]="isFieldInvalid('prixInitial')"
+                                                           placeholder="0.00"
+                                                           formControlName="prixInitial">
+                                                </div>
+                                                <div class="invalid-feedback" *ngIf="isFieldInvalid('prixInitial')">
+                                                    {{ getFieldError('prixInitial') }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+      <!-- Discount - FIXED -->
+                                       <div class="col-lg-4">
+    <div>
+        <label for="discount-input" class="form-label">
+            Discount Percentage
+            <span class="text-danger" *ngIf="courseForm.get('enableDiscount')?.value">*</span>
+        </label>
+        <div class="input-group">
+            <span class="input-group-text">%</span>
+            <input type="number"
+                   class="form-control"
+                   id="discount-input"
+                   [class.is-invalid]="isFieldInvalid('discount')"
+                   placeholder="0"
+                   formControlName="discount"
+                   [readonly]="!courseForm.get('enableDiscount')?.value"
+                   min="0"
+                   max="100">
+        </div>
+        <div class="form-text">
+            <span *ngIf="!courseForm.get('enableDiscount')?.value" class="text-muted">
+                Enable discount checkbox to set percentage
+            </span>
+            <span *ngIf="courseForm.get('enableDiscount')?.value" class="text-info">
+                Enter discount percentage (1-100%)
+            </span>
+        </div>
+        <div class="invalid-feedback" *ngIf="isFieldInvalid('discount')">
+            {{ getFieldError('discount') }}
+        </div>
+    </div>
+</div>
+
+<!-- REMPLACER LA SECTION ENABLE DISCOUNT PAR CECI : -->
+<div class="col-lg-12">
+    <div class="form-check">
+        <input class="form-check-input"
+               type="checkbox"
+               id="checkBox1"
+               formControlName="enableDiscount">
+        <label class="form-check-label" for="checkBox1">
+            Enable Discount for this Course
+        </label>
+        <div class="form-text">
+            <span *ngIf="courseForm.get('enableDiscount')?.value" class="text-success">
+                ✓ Discount enabled - enter percentage above
+            </span>
+            <span *ngIf="!courseForm.get('enableDiscount')?.value" class="text-muted">
+                Check this box to offer a discount
+            </span>
+        </div>
+    </div>
+</div>
+
+                                        <!-- Short Description -->
+                                        <div class="col-lg-12">
+                                            <div>
+                                                <label for="shortDescription" class="form-label">
+                                                    Short Description<span class="text-danger">*</span>
+                                                </label>
+                                                <textarea class="form-control"
+                                                          id="shortDescription"
+                                                          rows="3"
+                                                          [class.is-invalid]="isFieldInvalid('short_description')"
+                                                          placeholder="Enter short description"
+                                                          formControlName="short_description"></textarea>
+                                                <div class="invalid-feedback" *ngIf="isFieldInvalid('short_description')">
+                                                    {{ getFieldError('short_description') }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Long Description -->
+                                        <div class="col-lg-12">
+                                            <label class="form-label">
+                                                Add Description<span class="text-danger">*</span>
+                                            </label>
+                                            <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
+                                            <ngx-editor [editor]="editor"
+                                                       [placeholder]="'Type here...'"
+                                                       [class.is-invalid]="isFieldInvalid('long_description')"
+                                                       formControlName="long_description"></ngx-editor>
+                                            <div class="invalid-feedback" *ngIf="isFieldInvalid('long_description')">
+                                                {{ getFieldError('long_description') }}
+                                            </div>
+                                        </div>
+                                    </div><!--end row-->
+
+                                    <div class="d-flex align-items-start gap-3 mt-4">
+                                        <button type="button"
+                                                class="btn btn-primary btn-label right ms-auto"
+                                                [disabled]="!canProceedToStep(1)"
+                                                cdkStepperNext>
+                                            <i class="ri-arrow-right-line label-icon align-middle fs-lg ms-2"></i>
+                                            Next Step
+                                        </button>
+                                    </div>
+                                </div>
+                            </cdk-step>
+
+                            <!-- STEP 2: Media Upload -->
+                            <cdk-step [optional]="true">
+                                <ng-template cdkStepLabel>
+                                    <button class="nav-link rounded-pill"
+                                            [class.active]="cdkStepper.selectedIndex === 1"
+                                            type="button">2</button>
+                                </ng-template>
+
+                                <div *ngIf="cdkStepper.selectedIndex === 1">
+                                    <h5 class="card-title mb-3 mt-3">Course Media</h5>
+
+                                    <!-- Image Upload -->
+                                    <div class="mb-4">
+                                        <label for="image-input" class="form-label">
+                                            Main Course Image<span class="text-danger">*</span>
+                                        </label>
+                                        <input type="file"
+                                               id="image-input"
+                                               class="form-control"
+                                               accept="image/*"
+                                               (change)="onImageFileSelected($event)">
+                                        <div class="form-text">Accepted formats: JPG, PNG, GIF (Max size: 10MB)</div>
+
+                                        <!-- Image Preview -->
+                                        <div class="mt-3" *ngIf="selectedImageFile && imagePreview">
+                                            <div class="border rounded p-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <div class="avatar-md">
+                                                            <img class="img-fluid rounded"
+                                                                 [src]="imagePreview"
+                                                                 alt="Course Image"
+                                                                 style="width: 60px; height: 60px; object-fit: cover;" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <h6 class="mb-1 fw-semibold">{{ selectedImageFile.name }}</h6>
+                                                        <p class="text-muted mb-0 fs-sm">
+                                                            {{ (selectedImageFile.size / 1024 / 1024) | number:'1.2-2' }} MB
+                                                            <span class="badge bg-success-subtle text-success ms-2">Image Ready</span>
+                                                        </p>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-soft-danger"
+                                                                (click)="removeImageFile()">
+                                                            <i class="ri-delete-bin-line"></i> Remove
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <!-- Large Preview -->
+                                                <div class="mt-3">
+                                                    <img [src]="imagePreview"
+                                                         alt="Course Image Preview"
+                                                         class="img-fluid rounded"
+                                                         style="max-width: 300px; max-height: 200px; object-fit: cover;" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Status indicator -->
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                Status:
+                                                <span class="fw-semibold" [class]="selectedImageFile ? 'text-success' : 'text-danger'">
+                                                    {{ selectedImageFile ? 'Image uploaded ✓' : 'Image required' }}
+                                                </span>
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Video Section -->
+                                    <div class="mb-4">
+                                        <div class="mb-3">
+                                            <label for="videoURL" class="form-label">Video URL (Optional)</label>
+                                            <input type="url"
+                                                   class="form-control"
+                                                   id="videoURL"
+                                                   placeholder="Enter video URL (YouTube, Vimeo, etc.)"
+                                                   formControlName="videoURL">
+                                            <div class="form-text">Or upload a video file below</div>
+                                        </div>
+
+                                        <div>
+                                            <label for="video-input" class="form-label">Upload Video (Optional)</label>
+                                            <input type="file"
+                                                   id="video-input"
+                                                   class="form-control"
+                                                   accept="video/*"
+                                                   (change)="onVideoFileSelected($event)">
+                                            <div class="form-text">Accepted formats: MP4, AVI, MOV, WMV (Max size: 1GB)</div>
+
+                                            <!-- Video Preview -->
+                                            <div class="mt-3" *ngIf="selectedVideoFile && videoPreview">
+                                                <div class="border rounded p-3">
+                                                    <div class="row align-items-center">
+                                                        <div class="col-auto">
+                                                            <div class="avatar-sm bg-primary bg-opacity-10 rounded">
+                                                                <div class="avatar-title">
+                                                                    <i class="ri-video-line fs-20 text-primary"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <h6 class="mb-1 fw-semibold">{{ selectedVideoFile.name }}</h6>
+                                                            <p class="text-muted mb-0 fs-sm">
+                                                                {{ (selectedVideoFile.size / 1024 / 1024) | number:'1.2-2' }} MB
+                                                                <span class="badge bg-success-subtle text-success ms-2">Video Ready</span>
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <button type="button"
+                                                                    class="btn btn-sm btn-soft-danger"
+                                                                    (click)="removeVideoFile()">
+                                                                <i class="ri-delete-bin-line"></i> Remove
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Video Preview -->
+                                                    <div class="mt-3">
+                                                        <video
+                                                            [src]="videoPreview"
+                                                            class="img-thumbnail"
+                                                            style="max-width: 300px; height: auto;"
+                                                            controls
+                                                            preload="metadata">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-start gap-3 mt-4">
+                                        <button type="button"
+                                                class="btn btn-light btn-label"
+                                                cdkStepperPrevious>
+                                            <i class="ri-arrow-left-line label-icon align-middle fs-lg me-2"></i>
+                                            Previous
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-success btn-label right ms-auto"
+                                                [disabled]="isLoading || !isMediaReadyForCreation()"
+                                                (click)="createCourse()">
+                                            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                                            <span *ngIf="!isLoading">Create Course & Continue</span>
+                                            <span *ngIf="isLoading">Creating Course...</span>
+                                            <i class="ri-arrow-right-line label-icon align-middle fs-lg ms-2" *ngIf="!isLoading"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </cdk-step>
+
+                            <!-- STEP 3: Chapters and Lessons -->
+                            <cdk-step [optional]="false">
+                                <ng-template cdkStepLabel>
+                                    <button class="nav-link rounded-pill"
+                                            [class.active]="cdkStepper.selectedIndex === 2"
+                                            type="button">3</button>
+                                </ng-template>
+
+                                <div *ngIf="cdkStepper.selectedIndex === 2">
+                                    <h5 class="card-title mb-3 mt-3">Course Content</h5>
+
+                                    <div class="alert alert-info" *ngIf="createdModule">
+                                        <i class="ri-information-line me-2"></i>
+                                        Course "<strong>{{ createdModule.titre }}</strong>" created successfully. Now add chapters and lessons.
+                                    </div>
+
+                                    <div formArrayName="chapitres">
+                                        <div *ngFor="let chapitre of chapitres.controls; let chapitreIndex = index; trackBy: trackByIndex"
+                                             [formGroupName]="chapitreIndex"
+                                             class="card border mb-3">
+
+                                            <!-- Chapter Header -->
+                                            <div class="card-header">
+                                                <div class="row align-items-center">
+                                                    <div class="col-8">
+                                                        <h6 class="mb-0">
+                                                            Chapter {{ chapitreIndex + 1 }}
+                                                            <span class="text-muted ms-2" *ngIf="chapitre.get('titre')?.value">
+                                                                - {{ chapitre.get('titre')?.value }}
+                                                            </span>
+                                                        </h6>
+                                                    </div>
+                                                    <div class="col-4 text-end">
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-danger"
+                                                                *ngIf="chapitres.length > 1"
+                                                                (click)="removeChapitre(chapitreIndex)">
+                                                            <i class="ri-delete-bin-line"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="card-body">
+                                                <!-- Chapter Title -->
+                                                <div class="mb-3">
+                                                    <label class="form-label">
+                                                        Chapter Title<span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                           class="form-control"
+                                                           placeholder="Enter chapter title"
+                                                           formControlName="titre"
+                                                           [class.is-invalid]="chapitre.get('titre')?.invalid && chapitre.get('titre')?.touched">
+                                                    <div class="invalid-feedback" *ngIf="chapitre.get('titre')?.invalid && chapitre.get('titre')?.touched">
+                                                        Chapter title is required (minimum 3 characters)
+                                                    </div>
+                                                </div>
+
+                                                <!-- Lessons -->
+                                                <div class="mt-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <label class="form-label mb-0">
+                                                            Lessons <span class="badge bg-secondary ms-1">{{ getLessons(chapitreIndex).length }}</span>
+                                                        </label>
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-primary"
+                                                                (click)="addLesson(chapitreIndex)">
+                                                            <i class="ri-add-line me-1"></i> Add Lesson
+                                                        </button>
+                                                    </div>
+
+                                                    <div formArrayName="lessons">
+                                                        <div *ngFor="let lesson of getLessons(chapitreIndex).controls; let lessonIndex = index; trackBy: trackByIndex"
+                                                             [formGroupName]="lessonIndex"
+                                                             class="border rounded p-3 mb-2">
+
+                                                            <div class="row align-items-center mb-2">
+                                                                <div class="col-8">
+                                                                    <h6 class="mb-0 text-primary">
+                                                                        Lesson {{ lessonIndex + 1 }}
+                                                                        <span class="text-muted ms-2" *ngIf="lesson.get('titre')?.value">
+                                                                            - {{ lesson.get('titre')?.value }}
+                                                                        </span>
+                                                                    </h6>
+                                                                </div>
+                                                                <div class="col-4 text-end">
+                                                                    <button type="button"
+                                                                            class="btn btn-sm btn-outline-danger"
+                                                                            *ngIf="getLessons(chapitreIndex).length > 1"
+                                                                            (click)="removeLesson(chapitreIndex, lessonIndex)">
+                                                                        <i class="ri-delete-bin-line"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row g-3">
+                                                                <!-- Lesson Title -->
+                                                                <div class="col-12">
+                                                                    <label class="form-label">
+                                                                        Lesson Title<span class="text-danger">*</span>
+                                                                    </label>
+                                                                    <input type="text"
+                                                                           class="form-control"
+                                                                           placeholder="Enter lesson title"
+                                                                           formControlName="titre"
+                                                                           [class.is-invalid]="lesson.get('titre')?.invalid && lesson.get('titre')?.touched">
+                                                                    <div class="invalid-feedback" *ngIf="lesson.get('titre')?.invalid && lesson.get('titre')?.touched">
+                                                                        Lesson title is required (minimum 3 characters)
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Lesson Description -->
+                                                                <div class="col-12">
+                                                                    <label class="form-label">
+                                                                        Description<span class="text-danger">*</span>
+                                                                    </label>
+                                                                    <input type="text"
+                                                                           class="form-control"
+                                                                           placeholder="Enter lesson description"
+                                                                           formControlName="description"
+                                                                           [class.is-invalid]="lesson.get('description')?.invalid && lesson.get('description')?.touched">
+                                                                    <div class="invalid-feedback" *ngIf="lesson.get('description')?.invalid && lesson.get('description')?.touched">
+                                                                        Description is required (minimum 5 characters)
+                                                                    </div>
+                                                                </div>
+
+                                                               <!-- lesson duree-->
+                                                                  <div class="col-12">
+                                                                    <label class="form-label">
+                                                                        Duree<span class="text-danger">*</span>
+                                                                    </label>
+                                                                    <input type="text"
+                                                                           class="form-control"
+                                                                           placeholder="Enter Duree lesson"
+                                                                           formControlName="duree"
+                                                                           [class.is-invalid]="lesson.get('duree')?.invalid && lesson.get('duree')?.touched">
+                                                                    <div class="invalid-feedback" *ngIf="lesson.get('duree')?.invalid && lesson.get('duree')?.touched">
+                                                                        Duree is required
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Lesson Content -->
+                                                                <div class="col-12">
+                                                                    <label class="form-label">
+                                                                        Content<span class="text-danger">*</span>
+                                                                    </label>
+                                                                    <textarea class="form-control"
+                                                                              rows="4"
+                                                                              placeholder="Enter lesson content"
+                                                                              formControlName="contenu"
+                                                                              [class.is-invalid]="lesson.get('contenu')?.invalid && lesson.get('contenu')?.touched"></textarea>
+                                                                    <div class="invalid-feedback" *ngIf="lesson.get('contenu')?.invalid && lesson.get('contenu')?.touched">
+                                                                        Content is required (minimum 10 characters)
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Add Chapter Button -->
+                                    <div class="text-center mb-4">
+                                        <button type="button"
+                                                class="btn btn-outline-success"
+                                                (click)="addChapitre()">
+                                            <i class="ri-add-line me-1"></i> Add Chapter
+                                        </button>
+                                    </div>
+
+                                    <!-- Navigation -->
+                                    <div class="d-flex align-items-start gap-3 mt-4">
+                                        <button type="button"
+                                                class="btn btn-light btn-label"
+                                                cdkStepperPrevious>
+                                            <i class="ri-arrow-left-line label-icon align-middle fs-lg me-2"></i>
+                                            Previous
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-success btn-label right ms-auto"
+                                                [disabled]="isLoading || !canCreateChapters()"
+                                                (click)="createChaptersAndLessons()">
+                                            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                                            <span *ngIf="!isLoading">Complete Course Creation</span>
+                                            <span *ngIf="isLoading">Creating Chapters...</span>
+                                            <i class="ri-check-line label-icon align-middle fs-lg ms-2" *ngIf="!isLoading"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </cdk-step>
+
+                            <!-- STEP 4: Success -->
+                            <cdk-step [optional]="true">
+                                <ng-template cdkStepLabel>
+                                    <button class="nav-link rounded-pill"
+                                            [class.active]="cdkStepper.selectedIndex === 3"
+                                            type="button">4</button>
+                                </ng-template>
+
+                                <div *ngIf="cdkStepper.selectedIndex === 3">
+                                    <div class="text-center py-5">
+                                        <div class="avatar-lg mx-auto mb-4">
+                                            <div class="avatar-title bg-success text-success bg-opacity-10 rounded-circle display-6">
+                                                <i class="ri-checkbox-circle-fill"></i>
+                                            </div>
+                                        </div>
+                                        <h5 class="text-success mb-3">Course Created Successfully!</h5>
+                                        <p class="text-muted mb-4">
+                                            Your course "<strong>{{ createdModule?.titre }}</strong>" has been created successfully with
+                                            <span class="fw-semibold">{{ chapitres.length }}</span> chapters and
+                                            <span class="fw-semibold">{{ getTotalLessons() }}</span> lessons.
+                                        </p>
+                                        <div class="gap-2 d-flex justify-content-center">
+                                            <button type="button"
+                                                    class="btn btn-success"
+                                                    (click)="navigateToCourses()">
+                                                View Courses
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary"
+                                                    (click)="resetForm()">
+                                                Create Another Course
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </cdk-step>
+
+                        </ng-stepper>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

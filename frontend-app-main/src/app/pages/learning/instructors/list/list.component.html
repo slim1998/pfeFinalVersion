@@ -1,0 +1,270 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="Liste des Formateurs" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div id="formateursList">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="row align-items-center g-2">
+            <div class="col-lg-3 me-auto">
+              <h6 class="card-title mb-0">
+                Liste des Formateurs
+               <span class="badge bg-primary ms-1 align-baseline">{{formateursList.length}}</span>
+              </h6>
+            </div>
+            <div class="col-xl-2 col-lg-3 col-sm-5">
+              <div class="search-box">
+                <input type="text" class="form-control search" placeholder="Rechercher..." [(ngModel)]="term" (keyup)="filterdata()">
+                <i class="ri-search-line search-icon"></i>
+              </div>
+            </div>
+            <div class="col-sm-auto">
+              <div class="hstack gap-2">
+                <button class="btn btn-subtle-danger d-none" id="remove-actions" (click)="deleteRecordModal.show()">
+                  <i class="ri-delete-bin-2-line"></i>
+                </button>
+                <a href="javascript:void(0);" class="btn btn-secondary" (click)="goToCreateFormateur()">
+                  <i class="bi bi-plus-circle align-baseline me-1"></i> Ajouter Formateur
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body mt-3">
+          <div class="table-responsive table-card">
+            <table class="table table-centered align-middle table-custom-effect table-nowrap mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="checkAll" >
+                      <label class="form-check-label"></label>
+                    </div>
+                  </th>
+                  <th>ID</th>
+                  <th>Formateur</th>
+                  <th>Nom d'utilisateur</th>
+                  <th>Email</th>
+                  <th>Téléphone</th>
+                  <th>Grade</th>
+                  <th>Adresse</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of formateursList; let i = index" id="l_{{data.id}}">
+                  <td>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" [value]="data.id" name="chkChild" >
+                      <label class="form-check-label"></label>
+                    </div>
+                  </td>
+                  <td>#FRM{{data.id}}</td>
+                  <td>
+                    <div class="d-flex gap-2 align-items-center">
+                      <div class="flex-shrink-0">
+                        <img [src]="data.photo || 'assets/images/users/avatar-1.jpg'" class="avatar-xxs rounded-circle" alt="">
+                      </div>
+                      <div class="flex-grow-1">
+                        {{data.firstName}} {{data.lastName}}
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{data.username}}</td>
+                  <td>{{data.email}}</td>
+                  <td>{{data.phone || 'N/A'}}</td>
+                  <td>{{data.grade || 'N/A'}}</td>
+                  <td>{{data.adress || 'N/A'}}</td>
+                  <td>
+                    <ul class="d-flex gap-2 list-unstyled mb-0">
+                         <li>
+                                                <button class="btn btn-subtle-info btn-icon btn-sm"
+                                                    (click)="viewDetails(data)" title="Voir détails">
+                                                    <i class="ph-eye"></i>
+                                                </button>
+                                            </li>
+                    
+                      <li>
+                        <button class="btn btn-subtle-danger btn-icon btn-sm" (click)="removeItem(data.id)">
+                          <i class="ph-trash"></i>
+                        </button>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="noresult" [ngClass]="(formateursList.length != 0)?'d-none':''">
+              <div class="text-center py-4">
+                <i class="ph-magnifying-glass fs-1 text-primary"></i>
+                <h5 class="mt-2">Aucun résultat trouvé</h5>
+                <p class="text-muted mb-0">Nous avons recherché parmi {{formateursList.length}} formateurs. Aucun formateur ne correspond à votre recherche.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ajouter/Modifier Formateur -->
+<div bsModal #addInstructor="bs-modal" class="modal fade" id="addInstructor">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content border-0">
+      <div class="modal-header">
+        <h5 class="modal-title">Ajouter / Modifier Formateur</h5>
+        <button type="button" class="btn-close" (click)="addInstructor.hide()"></button>
+      </div>
+      <form [formGroup]="ListForm"  autocomplete="off" novalidate>
+        <div class="modal-body">
+          <input type="hidden" formControlName="id">
+
+          <div class="mb-3">
+            <label class="form-label">Photo du Formateur</label>
+            <dropzone class="dropzone" [config]="dropzoneConfig" [message]="'Déposez les fichiers ici ou cliquez pour télécharger.'" (success)="onUploadSuccess($event)"></dropzone>
+            <ul class="list-unstyled mb-0" *ngIf="uploadedFiles.length">
+              <li *ngFor="let file of uploadedFiles">
+                <div class="border rounded mb-2 p-2 d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center gap-2">
+                    <img [src]="file.dataURL || file" alt="Preview" class="avatar-sm rounded">
+                    <div>
+                      <h6 class="mb-0">{{file.name}}</h6>
+                      <small class="text-muted">{{file.size}}</small>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-danger" (click)="removeFile(file)">Supprimer</button>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-6 mb-3">
+              <label class="form-label">Prénom</label>
+              <input type="text" class="form-control" formControlName="firstName" placeholder="Entrer le prénom">
+            </div>
+            <div class="col-lg-6 mb-3">
+              <label class="form-label">Nom</label>
+              <input type="text" class="form-control" formControlName="lastName" placeholder="Entrer le nom">
+            </div>
+            <div class="col-lg-6 mb-3">
+              <label class="form-label">Nom d'utilisateur</label>
+              <input type="text" class="form-control" formControlName="username" placeholder="Nom d'utilisateur">
+            </div>
+            <div class="col-lg-6 mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" formControlName="email" placeholder="Email">
+            </div>
+            <div class="col-lg-6 mb-3">
+              <label class="form-label">Téléphone</label>
+              <input type="tel" class="form-control" formControlName="phone" placeholder="Numéro de téléphone">
+            </div>
+            <div class="col-lg-6 mb-3">
+              <label class="form-label">Grade</label>
+              <input type="text" class="form-control" formControlName="grade" placeholder="Grade">
+            </div>
+            <div class="col-lg-12 mb-3">
+              <label class="form-label">Adresse</label>
+              <textarea class="form-control" formControlName="adress" rows="3" placeholder="Entrer l'adresse"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" (click)="addInstructor.hide()">Fermer</button>
+          <button (click)="saveList()" class="btn btn-primary" id="add-btn">Mettre à jour</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Supprimer -->
+<div bsModal #deleteRecordModal="bs-modal" id="deleteRecordModal" class="modal fade zoomIn">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" (click)="deleteRecordModal.hide()"></button>
+      </div>
+      <div class="modal-body p-md-5 text-center">
+        <i class="bi bi-trash display-5 text-danger"></i>
+        <h4 class="mt-4 mb-2">Êtes-vous sûr ?</h4>
+        <p class="text-muted">Voulez-vous vraiment supprimer cet enregistrement ?</p>
+        <div class="d-flex gap-2 justify-content-center mt-4">
+          <button type="button" class="btn btn-light" (click)="deleteRecordModal.hide()">Fermer</button>
+          <button type="button" class="btn btn-danger" (click)="confirmDelete(deleteID)">Oui, Supprimer !</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div bsModal #viewDetailsModal="bs-modal" class="modal fade" id="viewDetailsModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0">
+            <div class="modal-header">
+                <h5 class="modal-title">Détails de Formateur</h5>
+                <button type="button" class="btn-close" (click)="viewDetailsModal.hide()"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedFormateur">
+                <div class="row">
+                    <div class="col-lg-4 text-center">
+                        <img [src]="selectedFormateur.photo || 'assets/images/users/avatar-1.jpg'"
+                            class="img-fluid rounded-circle mb-3"
+                            style="width: 150px; height: 150px; object-fit: cover;" alt="Photo">
+                        <h5>{{selectedFormateur.firstName}} {{selectedFormateur.lastName}}</h5>
+
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-medium">ID:</td>
+                                        <td>#APP{{selectedFormateur.id}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">Email:</td>
+                                        <td>{{selectedFormateur.email}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">Téléphone:</td>
+                                        <td>{{selectedFormateur.phone || 'Non renseigné'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">Grade:</td>
+                                        <td>{{selectedFormateur.grade || 'Non renseigné'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">Adresse:</td>
+                                        <td>{{selectedFormateur.adress || 'Non renseignée'}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="viewDetailsModal.hide()">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>

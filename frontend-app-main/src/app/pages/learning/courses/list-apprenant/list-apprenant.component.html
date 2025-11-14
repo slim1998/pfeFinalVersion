@@ -1,0 +1,298 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="Liste des Apprenants" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div id="apprenantsList">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row align-items-center g-2">
+                        <div class="col-lg-3 me-auto">
+                            <h6 class="card-title mb-0">
+                                Liste des Apprenants
+                                <span class="badge bg-primary ms-1 align-baseline">{{apprenantsList.length}}</span>
+                            </h6>
+                        </div>
+                        <div class="col-xl-2 col-lg-3 col-sm-5">
+                            <div class="search-box">
+                                <input type="text" class="form-control search" placeholder="Rechercher..."
+                                    [(ngModel)]="term" (keyup)="filterdata()">
+                                <i class="ri-search-line search-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-auto">
+                            <div class="hstack gap-2">
+                                <button class="btn btn-subtle-danger d-none" id="remove-actions"
+                                    (click)="deleteRecordModal.show()">
+                                    <i class="ri-delete-bin-2-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body mt-3">
+                    <div class="table-responsive table-card">
+                        <table class="table table-centered align-middle table-custom-effect table-nowrap mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="checkAll">
+                                            <label class="form-check-label"></label>
+                                        </div>
+                                    </th>
+                                    <th>ID</th>
+                                    <th>Apprenant</th>
+                                    <th>Email</th>
+                                    <th>Téléphone</th>
+                                    <!-- <th>Niveau</th>
+                  <th>Adresse</th> -->
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of apprenantsList; let i = index" id="l_{{data.id}}">
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" [value]="data.id"
+                                                name="chkChild">
+                                            <label class="form-check-label"></label>
+                                        </div>
+                                    </td>
+                                    <td>#APP{{data.id}}</td>
+                                    <td>
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <img [src]="data.photo || 'assets/images/users/avatar-1.jpg'"
+                                                    class="avatar-xxs rounded-circle" alt="">
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                {{data.firstName}} {{data.lastName}}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{data.email}}</td>
+                                    <td>{{data.phone || 'N/A'}}</td>
+                                    <!-- <td>{{data.niveau || 'N/A'}}</td>
+                  <td>{{data.adress || 'N/A'}}</td> -->
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox"
+                                                [id]="'statusSwitch' + data.id" [checked]="data.enabled"
+                                                (change)="toggleStatus(data.id, $event)">
+                                            <label class="form-check-label" [for]="'statusSwitch' + data.id">
+                                                <span class="badge"
+                                                    [ngClass]="data.enabled ? 'bg-success' : 'bg-danger'">
+                                                    {{data.enabled ? 'Actif' : 'Inactif'}}
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <ul class="d-flex gap-2 list-unstyled mb-0">
+                                            <li>
+                                                <button class="btn btn-subtle-secondary btn-icon btn-sm"
+                                                    (click)="editList(i)" title="Modifier">
+                                                    <i class="ph-pencil"></i>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="btn btn-subtle-info btn-icon btn-sm"
+                                                    (click)="viewDetails(data)" title="Voir détails">
+                                                    <i class="ph-eye"></i>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="btn btn-subtle-danger btn-icon btn-sm"
+                                                    (click)="removeItem(data.id)" title="Supprimer">
+                                                    <i class="ph-trash"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="noresult" [ngClass]="(apprenantsList.length != 0)?'d-none':''">
+                            <div class="text-center py-4">
+                                <i class="ph-magnifying-glass fs-1 text-primary"></i>
+                                <h5 class="mt-2">Aucun résultat trouvé</h5>
+                                <p class="text-muted mb-0">Nous avons recherché parmi {{apprenantsList.length}}
+                                    apprenants. Aucun apprenant ne correspond à votre recherche.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier Apprenant -->
+<div bsModal #editApprenant="bs-modal" class="modal fade" id="editApprenant">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0">
+            <div class="modal-header">
+                <h5 class="modal-title">Modifier Apprenant</h5>
+                <button type="button" class="btn-close" (click)="editApprenant.hide()"></button>
+            </div>
+            <form [formGroup]="ListForm" (ngSubmit)="saveList()" autocomplete="off" novalidate>
+                <div class="modal-body">
+                    <input type="hidden" formControlName="id">
+
+                    <div class="mb-3">
+                        <label class="form-label">Photo de l'Apprenant</label>
+                        <dropzone class="dropzone" [config]="dropzoneConfig"
+                            [message]="'Déposez les fichiers ici ou cliquez pour télécharger.'"
+                            (success)="onUploadSuccess($event)"></dropzone>
+                        <ul class="list-unstyled mb-0" *ngIf="uploadedFiles.length">
+                            <li *ngFor="let file of uploadedFiles">
+                                <div class="border rounded mb-2 p-2 d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img [src]="file.dataURL || file" alt="Preview" class="avatar-sm rounded">
+                                        <div>
+                                            <h6 class="mb-0">{{file.name}}</h6>
+                                            <small class="text-muted">{{file.size}}</small>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-danger"
+                                        (click)="removeFile(file)">Supprimer</button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Prénom</label>
+                            <input type="text" class="form-control" formControlName="firstName"
+                                placeholder="Entrer le prénom">
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Nom</label>
+                            <input type="text" class="form-control" formControlName="lastName"
+                                placeholder="Entrer le nom">
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" formControlName="email" placeholder="Email">
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Téléphone</label>
+                            <input type="tel" class="form-control" formControlName="phone"
+                                placeholder="Numéro de téléphone">
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Niveau</label>
+                            <select class="form-select" formControlName="niveau">
+                                <option value="">Sélectionner le niveau</option>
+                                <option value="Débutant">Débutant</option>
+                                <option value="Intermédiaire">Intermédiaire</option>
+                                <option value="Avancé">Avancé</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Status</label>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" formControlName="status"
+                                    id="statusEdit">
+                                <label class="form-check-label" for="statusEdit">
+                                    Compte actif
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 mb-3">
+                            <label class="form-label">Adresse</label>
+                            <textarea class="form-control" formControlName="adress" rows="3"
+                                placeholder="Entrer l'adresse"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" (click)="editApprenant.hide()">Fermer</button>
+                    <button type="submit" class="btn btn-primary" id="update-btn">Mettre à jour</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Voir Détails -->
+<div bsModal #viewDetailsModal="bs-modal" class="modal fade" id="viewDetailsModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0">
+            <div class="modal-header">
+                <h5 class="modal-title">Détails de l'Apprenant</h5>
+                <button type="button" class="btn-close" (click)="viewDetailsModal.hide()"></button>
+            </div>
+            <div class="modal-body" *ngIf="selectedApprenant">
+                <div class="row">
+                    <div class="col-lg-4 text-center">
+                        <img [src]="selectedApprenant.photo || 'assets/images/users/avatar-1.jpg'"
+                            class="img-fluid rounded-circle mb-3"
+                            style="width: 150px; height: 150px; object-fit: cover;" alt="Photo">
+                        <h5>{{selectedApprenant.firstName}} {{selectedApprenant.lastName}}</h5>
+                        <span class="badge" [ngClass]="selectedApprenant.enabled ? 'bg-success' : 'bg-danger'">
+                            {{selectedApprenant.enabled ? 'Compte Actif' : 'Compte Inactif'}}
+                        </span>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-medium">ID:</td>
+                                        <td>#APP{{selectedApprenant.id}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">Email:</td>
+                                        <td>{{selectedApprenant.email}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">Téléphone:</td>
+                                        <td>{{selectedApprenant.phone || 'Non renseigné'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">Niveau:</td>
+                                        <td>{{selectedApprenant.niveau || 'Non renseigné'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">Adresse:</td>
+                                        <td>{{selectedApprenant.adress || 'Non renseignée'}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="viewDetailsModal.hide()">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Supprimer -->
+<div bsModal #deleteRecordModal="bs-modal" id="deleteRecordModal" class="modal fade zoomIn">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" (click)="deleteRecordModal.hide()"></button>
+            </div>
+            <div class="modal-body p-md-5 text-center">
+                <i class="bi bi-trash display-5 text-danger"></i>
+                <h4 class="mt-4 mb-2">Êtes-vous sûr ?</h4>
+                <p class="text-muted">Voulez-vous vraiment supprimer cet enregistrement ?</p>
+                <div class="d-flex gap-2 justify-content-center mt-4">
+                    <button type="button" class="btn btn-light" (click)="deleteRecordModal.hide()">Fermer</button>
+                    <button type="button" class="btn btn-danger" (click)="confirmDelete(deleteID)">Oui, Supprimer
+                        !</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

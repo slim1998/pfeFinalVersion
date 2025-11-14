@@ -1,0 +1,140 @@
+<section class="auth-page-wrapper py-5 position-relative d-flex align-items-center justify-content-center min-vh-100">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-11">
+        <div class="card mb-0">
+          <div class="row g-0 align-items-center">
+            <div class="col-xxl-5">
+              <div class="card auth-card bg-secondary h-100 border-0 shadow-none d-none d-sm-block mb-0">
+                <div class="card-body py-5 d-flex justify-content-between flex-column h-100">
+                  <div class="text-center">
+                    <h3 class="text-white">Commencez votre parcours avec nous.</h3>
+                    <p class="text-white opacity-75 fs-base">Rassemble vos tâches, projets, calendriers, fichiers et plus encore</p>
+                  </div>
+
+                  <div class="auth-effect-main my-5 position-relative rounded-circle d-flex align-items-center justify-content-center mx-auto">
+                    <div class="effect-circle-1 position-relative mx-auto rounded-circle d-flex align-items-center justify-content-center">
+                      <div class="effect-circle-2 position-relative mx-auto rounded-circle d-flex align-items-center justify-content-center">
+                        <div class="effect-circle-3 mx-auto rounded-circle position-relative text-white fs-4xl d-flex align-items-center justify-content-center">
+                          Bienvenue sur <span class="text-primary ms-1">Ancs</span>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- avatars inchangés -->
+                    <ul class="auth-user-list list-unstyled">
+                      <!-- tes <li> avec avatars restent identiques -->
+                    </ul>
+                  </div>
+
+                  <div class="text-center">
+                    <p class="text-white opacity-75 mb-0 mt-3">
+                      &copy; {{year}} Ancs Center. Conçu avec <i class="mdi mdi-heart text-danger"></i> par Themesbrand
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--end col-->
+
+            <div class="col-xxl-6 mx-auto">
+              <div class="card mb-0 border-0 shadow-none mb-0">
+                <div class="card-body p-sm-5 m-lg-4">
+                  <div class="text-center mt-2">
+                    <h5 class="fs-3xl">Créez votre compte gratuit</h5>
+                    <p class="text-muted">Obtenez votre compte gratuitement dès maintenant</p>
+                  </div>
+                  <div class="p-2 mt-5">
+                    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data">
+
+                      <!-- Prénom -->
+                      <div class="mb-3">
+                        <label class="form-label">Prénom <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" formControlName="firstName" placeholder="Entrez votre prénom" />
+                      </div>
+
+                      <!-- Nom -->
+                      <div class="mb-3">
+                        <label class="form-label">Nom <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" formControlName="lastName" placeholder="Entrez votre nom" />
+                      </div>
+
+                      <!-- Email -->
+                      <div class="mb-3">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" formControlName="email" placeholder="Entrez votre email" />
+                      </div>
+
+                      <!-- Mot de passe -->
+                      <div class="mb-3">
+                        <label class="form-label">Mot de passe <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" formControlName="password" placeholder="Entrez votre mot de passe" />
+                      </div>
+
+                      <!-- Confirmation mot de passe -->
+                      <div class="mb-3">
+                        <label class="form-label">Confirmez le mot de passe <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" formControlName="confirmpassword" placeholder="Confirmez votre mot de passe" />
+                      </div>
+
+                      <!-- Adresse -->
+                      <div class="mb-3">
+                        <label class="form-label">Adresse</label>
+                        <input type="text" class="form-control" formControlName="adress" placeholder="Entrez votre adresse" />
+                      </div>
+
+                      <!-- Téléphone -->
+                      <div class="mb-3">
+                        <label class="form-label">Téléphone</label>
+                        <input type="text" class="form-control" formControlName="phone" placeholder="Entrez votre numéro de téléphone" />
+                      </div>
+
+                      <!-- Niveau -->
+                      <div class="mb-3">
+                        <label class="form-label">Niveau</label>
+                        <select class="form-control" formControlName="niveau">
+                          <option value="">-- Sélectionnez un niveau --</option>
+                          <option value="primaire">Primaire</option>
+                          <option value="collège">Collège</option>
+                          <option value="lycée">Lycée</option>
+                          <option value="université">Université</option>
+                        </select>
+                      </div>
+
+                      <!-- Photo -->
+                      <div class="col-6">
+                        <div class="form-group mb-1">
+                          <label for="">Photo de l'apprenant</label>
+                        </div>
+                        <div class="form-uploads mb-4">
+                          <div class="form-uploads-path">
+                            <button type="button" (click)="fileInput.click()" style="background-color: transparent; border: none;">
+                              <img (error)="changeSourceimage($event)" [src]="imgUrl || 'assets/images/avatar/12.jpg'" class="rounded-circle" width="100px" height="100px" />
+                              <input hidden type="file" #fileInput (change)="onFileInputImage(fileInput.files)" formControlName="photo" name="photo">
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="mt-4">
+                        <button class="btn btn-primary w-100" (click)="register()">S'inscrire</button>
+                      </div>
+                    </form>
+                  </div>
+
+                  <div class="mt-4 text-center">
+                    <p class="mb-0">Vous avez déjà un compte ? <a routerLink="/auth/login" class="fw-semibold text-primary text-decoration-underline"> Se connecter </a> </p>
+                  </div>
+                </div><!-- end card body -->
+              </div><!-- end card -->
+            </div>
+            <!--end col-->
+          </div>
+          <!--end row-->
+        </div>
+      </div>
+      <!--end col-->
+    </div>
+    <!--end row-->
+  </div>
+  <!--end container-->
+</section>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Ancs Center</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="assets/images/avatar/logo.png">
+  
+  <!-- Font Awesome CDN -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+  <app-root></app-root>
+
+  <!-- Google Maps Script - Moved to bottom and fixed -->
+  <script>
+    // Define initMap function in global scope
+    function initMap() {
+      console.log('Google Maps API loaded successfully!');
+      // You can dispatch a custom event to notify your Angular app
+      window.dispatchEvent(new Event('google-maps-loaded'));
+    }
+
+    // Handle loading errors
+    function handleMapError() {
+      console.error('Failed to load Google Maps API');
+    }
+  </script>
+
+  <script 
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_ACTUAL_GOOGLE_MAPS_KEY&callback=initMap"
+    async 
+    defer
+    onerror="handleMapError()">
+  </script>
+</body>
+
+</html>

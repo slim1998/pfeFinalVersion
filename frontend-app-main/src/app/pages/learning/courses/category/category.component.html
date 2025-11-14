@@ -1,0 +1,261 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="Category" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="row align-items-center mb-4 g-2">
+    <div class="col-lg-3 col-md-4 me-auto">
+        <div class="search-box">
+            <input type="text" 
+                   class="form-control search" 
+                   placeholder="Search for category or something..." 
+                   [(ngModel)]="term" 
+                   (keyup)="filterdata()">
+            <i class="ri-search-line search-icon"></i>
+        </div>
+    </div><!--end col-->
+    <div class="col-md-auto">
+        <a href="javascript:void(0);" 
+           class="btn btn-secondary" 
+           (click)="resetForm(); addCategory.show()">
+            <i class="bi bi-plus-circle align-baseline me-1"></i> Add Category
+        </a>
+    </div><!--end col-->
+</div>
+
+<div class="row row-cols-xl-5 row-cols-sm-2 row-cols-1">
+    @for (data of categories; track data.id) {
+    <div class="col">
+        <div class="card card-animate text-center bg-info-subtle border border-info-subtle">
+            <div class="card-body p-4">
+                <div class="avatar-md mx-auto mb-4">
+                    <div class="avatar-title bg-white rounded">
+                        @if (data.image) {
+                        <img [src]="data.image" alt="{{data.nom}}" class="avatar-sm">
+                        } @else {
+                        <i class="bi bi-folder fs-3 text-muted"></i>
+                        }
+                    </div>
+                </div>
+                 <h5 class="text-truncate">{{ data.nom }}</h5>
+              <div class="btn-group position-absolute top-0 end-0" dropdown>
+  <button id="btn-{{data.id}}" dropdownToggle type="button" class="btn btn-sm btn-light">
+    <i class="bi bi-three-dots-vertical"></i>
+  </button>
+  <ul *dropdownMenu class="dropdown-menu dropdown-menu-end" role="menu" [attr.aria-labelledby]="'btn-' + data.id">
+    <li role="menuitem">
+      <a class="dropdown-item" href="javascript:void(0);" (click)="editCategory(data)">
+        <i class="bi bi-pencil me-1"></i> Edit
+      </a>
+    </li>
+    <li role="menuitem">
+      <a class="dropdown-item text-danger" href="javascript:void(0);" (click)="confirmDelete(data.id)">
+        <i class="bi bi-trash me-1"></i> Delete
+      </a>
+    </li>
+  </ul>
+</div>
+                <p class="text-muted mb-0 small">{{data.description}}</p>
+            </div>
+        </div><!--end card-->
+    </div><!--end col-->
+    }
+</div><!--end row-->
+
+<div class="noresult" style="display: none;">
+    <div class="text-center py-4">
+        <i class="ph-magnifying-glass fs-1 text-primary"></i>
+        <h5 class="mt-2">Sorry! No Result Found</h5>
+        <p class="text-muted mb-0">We've searched more than 150+ Categories We did not find any Categories
+            for you search.</p>
+    </div>
+</div>
+
+<div id="elmLoader">
+    <div class="spinner-border text-primary avatar-sm" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<div class="row align-items-center mb-3" id="pagination-element">
+    <div class="col-sm">
+        <div class="text-muted text-center text-sm-start">
+            Showing <span class="fw-semibold">{{categories?.length}}</span> of <span class="fw-semibold">{{categorieslist?.length}}</span> Results
+        </div>
+    </div><!--end col-->
+    <div class="col-sm-auto mt-3 mt-sm-0">
+        <pagination class="pagination-wrap hstack justify-content-center gap-2" 
+                    [totalItems]="categorieslist?.length ?? 0" 
+                    [itemsPerPage]="15" 
+                    (pageChanged)="pageChanged($event)">
+        </pagination>
+    </div><!--end col-->
+</div><!--end row-->
+
+<!-- Add/Edit Category Modal -->
+<div bsModal #addCategory="bs-modal" class="modal fade" id="addCategory">
+    <div class="modal-dialog">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-secondary p-3">
+                <h5 class="modal-title text-white" id="addCategoryLabel">
+                    {{ categoryForm.get('id')?.value ? 'Edit Category' : 'Add Category' }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" (click)="addCategory.hide()"></button>
+            </div>
+
+            <form (ngSubmit)="saveCategory()" 
+                  [formGroup]="categoryForm" 
+                  class="tablelist-form" 
+                  novalidate 
+                  autocomplete="off">
+                <div class="modal-body">
+                    <div id="alert-error-msg" class="d-none alert alert-danger py-2"></div>
+
+                    <!-- Category Image Upload -->
+                    <div class="mb-3">
+                        <label class="form-label">Category Image</label>
+                           <dropzone class="dropzone" [config]="dropzoneConfig" [message]="'Déposez vos fichiers ici ou cliquez pour télécharger.'"
+                (addedFile)="onFileAdded($event)">
+                <ul class="list-unstyled mb-0 mt-3" id="dropzone-preview">
+                  <li class="mt-2" *ngFor="let file of uploadedFiles">
+                   
+                  </li>
+                </ul>
+              </dropzone>
+             
+
+                        @if (uploadedFiles.length > 0) {
+                        <div class="mt-3">
+                            <label class="form-label">Fichiers sélectionnés:</label>
+                            @for (file of uploadedFiles; track $index) {
+                            <div class="border rounded p-3 mb-2">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar-md bg-light rounded d-flex align-items-center justify-content-center">
+                                            @if (file.dataURL) {
+                                            <img [src]="file.dataURL" 
+                                                 alt="Preview" 
+                                                 class="img-fluid rounded" 
+                                                 style="max-width: 50px; max-height: 50px; object-fit: cover;">
+                                            } @else {
+                                            <i class="bi bi-image fs-4 text-muted"></i>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        @if (file.name) {
+                                        <h6 class="mb-1">{{ file.name }}</h6>
+                                        }
+                                        @if (file.size) {
+                                        <p class="text-muted mb-0 small">{{ file.size }}</p>
+                                        }
+                                        @if (file.isExisting) {
+                                        <span class="badge bg-info">Image actuelle</span>
+                                        }
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <button type="button" 
+                                                (click)="removeFile(file)" 
+                                                class="btn btn-sm btn-outline-danger"
+                                                title="Supprimer le fichier">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                        }
+                    </div>
+
+                    <!-- Category Name -->
+                    <div class="mb-3">
+                        <label for="category-name-input" class="form-label">
+                            Category Name<span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               id="category-name-input" 
+                               formControlName="nom" 
+                               class="form-control {{getValidationClass('nom')}}" 
+                               placeholder="Enter category name" 
+                               required>
+                        @if (isFieldInvalid('nom')) {
+                        <div class="invalid-feedback">
+                            Category name is required.
+                        </div>
+                        }
+                    </div>
+
+                    <!-- Category Description -->
+                    <div class="mb-3">
+                        <label for="category-description-input" class="form-label">
+                            Category Description<span class="text-danger">*</span>
+                        </label>
+                        <textarea id="category-description-input" 
+                                  formControlName="description" 
+                                  class="form-control {{getValidationClass('description')}}" 
+                                  placeholder="Enter category description" 
+                                  rows="3" 
+                                  required>
+                        </textarea>
+                        @if (isFieldInvalid('description')) {
+                        <div class="invalid-feedback">
+                            Category description is required.
+                        </div>
+                        }
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <div class="hstack gap-2 justify-content-end">
+                        <button type="button" 
+                                class="btn btn-ghost-danger" 
+                                (click)="resetForm(); addCategory.hide()">
+                            <i class="bi bi-x-lg align-baseline me-1"></i> Close
+                        </button>
+                        <button type="submit" 
+                                class="btn btn-primary" 
+                                id="add-btn"
+                                [disabled]="submitted && categoryForm.invalid">
+                            <i class="bi bi-check-circle align-baseline me-1"></i>
+                            {{ categoryForm.get('id')?.value ? 'Update Category' : 'Add Category' }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div><!--end add Category modal-->
+
+<!-- Delete Record Modal -->
+<div bsModal #deleteRecordModal="bs-modal" id="deleteRecordModal" class="modal fade zoomIn">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" (click)="deleteRecordModal.hide()"></button>
+            </div>
+            <div class="modal-body p-md-5">
+                <div class="text-center">
+                    <div class="text-danger">
+                        <i class="bi bi-trash display-5"></i>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="mb-2">Are you sure ?</h4>
+                        <p class="text-muted mx-3 mb-0">Are you sure you want to remove this category ?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 pt-2 mb-2">
+                    <button type="button" 
+                            class="btn w-sm btn-light btn-hover" 
+                            (click)="deleteRecordModal.hide()">
+                        Close
+                    </button>
+                    <button type="button" 
+                            class="btn w-sm btn-danger btn-hover" 
+                            (click)="deleteCategory()">
+                        Yes, Delete It!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

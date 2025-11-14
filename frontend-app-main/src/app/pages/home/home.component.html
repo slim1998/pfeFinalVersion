@@ -1,0 +1,711 @@
+<!-- Structure principale pour assurer le footer en bas -->
+<div class="app-container">
+  <div class="main-content">
+
+    <!-- Navbar -->
+   <nav class="navbar" #navbar>
+  <div class="nav-container">
+
+    <div class="me-5">
+      <a routerLink="/" class="logo">
+        <img src="/assets/images/avatar/logo.png" width="150px" />
+      </a>
+    </div>
+
+    <div class="m-5">
+      <ul class="nav-menu" [class.active]="isMenuOpen">
+        <li><a href="#courses" class="nav-link" (click)="scrollToSection($event, 'courses')">Cours</a></li>
+        <li><a routerLink="/about" class="nav-link">À propos</a></li>
+        <li><a href="#instructors" class="nav-link" (click)="scrollToSection($event, 'instructors')">Instructeurs</a></li>
+        <li><a routerLink="/blog" class="nav-link" routerLinkActive="active">Blog</a></li>
+        <li><a routerLink="/contact" class="nav-link" routerLinkActive="active">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-actions ms-5">
+      <ng-container *ngIf="!testAuth">
+        <a routerLink="/auth/login" class="btn btn-outline">Connexion</a>
+        <a routerLink="/auth/register" class="btn btn-primary">S'inscrire</a>
+      </ng-container>
+      
+      <ng-container *ngIf="testAuth">
+        <!-- Bouton Dashboard -->
+        <a routerLink="/learning" class="btn btn-info me-2">
+          <i class="fas fa-th-large me-2"></i>Dashboard
+        </a>
+        
+        <a (click)="logout()" class="btn btn-danger" style="cursor: pointer;">
+          <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+        </a>
+      </ng-container>
+    </div>
+
+    <button class="mobile-menu" (click)="toggleMobileMenu()" aria-label="Menu mobile">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+</nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+      <div class="hero-background-pattern"></div>
+      <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+      </div>
+
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-text">
+            <h1 class="hero-title">
+              Apprentissage illimité à portée de
+              <span class="highlight">main</span>
+            </h1>
+            <p class="hero-description">
+              Plateforme d'apprentissage et d'enseignement en ligne avec plus de 5000 cours et 10 millions d'étudiants.
+              Enseigné par des experts pour vous aider à acquérir de nouvelles compétences.
+            </p>
+
+            <div class="hero-features">
+              <div class="feature" *ngFor="let feature of heroFeatures">
+                <i [class]="feature.icon"></i>
+                <span>{{ feature.text }}</span>
+              </div>
+            </div>
+
+            <div class="hero-actions">
+              <button class="btn btn-primary" aria-label="Commencer maintenant">
+                <i class="fas fa-play"></i>
+                Commencer maintenant
+              </button>
+             
+            </div>
+          </div>
+
+          <div class="hero-image">
+            <div class="student-container">
+              <img [src]="heroData.studentImage" [alt]="heroData.studentAlt" class="student-img">
+            </div>
+
+            <div class="floating-cards">
+              <div class="notification-card">
+                <div class="notification-icon">
+                  <i class="fas fa-trophy"></i>
+                </div>
+                <div class="notification-content">
+                  <h4>{{ heroData.notification.title }}</h4>
+                  <p>{{ heroData.notification.message }}</p>
+                </div>
+              </div>
+
+              <div class="students-card">
+                <h4>{{ heroData.dailyStudents.title }}</h4>
+                <div class="student-avatars">
+                  <img *ngFor="let student of heroData.dailyStudents.avatars" [src]="student.src" [alt]="student.alt">
+                  <span class="more-count">{{ heroData.dailyStudents.count }}</span>
+                </div>
+              </div>
+            </div>
+
+
+
+            <div class="decorative-icons">
+              <div class="star-icon"><i class="fa-brands fa-angular"></i></div>
+              <div class="atom-icon"><i class="fa-brands fa-java"></i></div>
+              <div class="lightbulb-icon"><i class="fa-brands fa-css3-alt"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <!-- <section class="stats-section">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-card" *ngFor="let stat of statsData">
+            <div class="stat-icon">
+              <i [class]="stat.icon"></i>
+            </div>
+            <div class="stat-content">
+              <h3>{{ stat.count }}</h3>
+              <p>{{ stat.label }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section> -->
+
+
+    <!-- counter-->
+    <!-- Section Statistiques - Angular + Bootstrap Design -->
+    <section class="stats-section py-0 py-xl-5">
+      <div class="container">
+        <div class="row g-4">
+
+          <div class="col-sm-6 col-xl-3" *ngFor="let stat of statsData; let i = index">
+            <div class="d-flex justify-content-center align-items-center p-4 rounded-3 h-100 stat-card-modern"
+              [ngClass]="getStatCardClass(i)">
+
+              <!-- Icône -->
+              <span class="display-6 lh-1 mb-0" [ngClass]="getStatIconClass(i)">
+                <i [class]="stat.icon"></i>
+              </span>
+
+              <!-- Contenu -->
+              <div class="ms-4 h6 fw-normal mb-0">
+                <div class="d-flex align-items-end">
+                  <h5 class="purecounter mb-0 fw-bold stat-number" [attr.data-purecounter-start]="0"
+                    [attr.data-purecounter-end]="getCountNumber(stat.count)"
+                    [attr.data-purecounter-delay]="200 + (i * 100)">
+                    {{ getCountNumber(stat.count) }}
+                  </h5>
+                  <span class="mb-0 h5" [ngClass]="getStatIconClass(i)">
+                    {{ getCountSuffix(stat.count) }}
+                  </span>
+                </div>
+                <p class="mb-0 stat-label">{{ stat.label }}</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Courses Section -->
+    <section class="courses-section" id="courses">
+      <div class="container">
+        <div class="section-header">
+          <h2>Cours les plus populaires</h2>
+          <p>Choisissez parmi des centaines de cours proposés par des organisations spécialisées</p>
+        </div>
+
+        <!-- Boutons de filtrage par catégorie -->
+        <div class="course-categories">
+          <button class="category-btn" [class.active]="selectedCategory === 'ALL'" (click)="filterByCategory('ALL')"
+            [attr.aria-label]="'Afficher tous les cours'">
+            Tous les cours
+          </button>
+          <button *ngFor="let category of listCategories" class="category-btn"
+            [class.active]="selectedCategory === category.id" (click)="filterByCategory(category.id)"
+            [attr.aria-label]="'Filtrer par ' + category.nom">
+            {{ category.nom }}
+          </button>
+        </div>
+
+        <!-- Grille des cours -->
+        <div class="courses-grid ">
+          <div class="course-card " *ngFor="let course of filteredCourses" [attr.aria-label]="'Cours: ' + course.titre">
+
+            <!-- Image du cours -->
+            <div class="course-image">
+              <div class="course-bg" *ngIf="course.image; else defaultImage">
+                <img [src]="course.image" [alt]="course.titre" class="course-img">
+              </div>
+              <ng-template #defaultImage>
+                <div class="course-bg default-gradient">
+                  <i class="fas fa-graduation-cap" [attr.aria-hidden]="true"></i>
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Contenu du cours -->
+            <div class="course-content">
+              <!-- Meta informations -->
+              <div class="course-meta">
+                <div class="course-category">{{ getCategoryName(course.categorieId) }}</div>
+                <div class="course-price" [class.free]="course.prixInitial === 0">
+                  {{ course.prixInitial === 0 ? 'Gratuit' : (course.prixInitial + ' DT') }}
+                  <!-- Affichage de la réduction -->
+                  <!-- <span class="original-price" *ngIf="course.discount && course.discount > 0">
+                {{ course.prixInitial }} DT
+              </span> -->
+                </div>
+              </div>
+
+              <!-- Titre et description -->
+              <h3 class="course-title">{{ course.titre }}</h3>
+              <p class="course-description">{{ course.short_description }}</p>
+
+              <!-- Statistiques du cours -->
+              <div class="course-stats">
+                <!-- Niveau -->
+                <div class="course-level" *ngIf="course.level">
+                  <i class="fas fa-layer-group" [attr.aria-hidden]="true"></i>
+                  <span class="badge ms-2" [ngClass]="{
+      'bg-secondary': course.level === 'ALL_LEVEL',
+      'bg-success': course.level === 'BEGINNER',
+      'bg-primary': course.level === 'INTERMEDIATE',
+      'bg-danger': course.level === 'ADVENCED'
+    }">
+                    {{ course.level }}
+                  </span>
+                </div>
+
+
+                <!-- Durée -->
+                <div class="course-duration" *ngIf="course.lectureTime">
+                  <i class="fas fa-clock" [attr.aria-hidden]="true"></i>
+                  {{ course.lectureTime }}
+                </div>
+
+                <!-- Réduction si applicable -->
+                <div class="course-discount" *ngIf="course.discount && course.discount > 0">
+                  <span class="discount-badge">-{{ course.discount }}%</span>
+                </div>
+              </div>
+
+              <!-- Footer avec formateur -->
+              <div class="course-footer">
+                <div class="instructor-info" *ngIf="course.formateurName">
+                  <div class="instructor">
+                    <div class="instructor-avatar">
+                      <img  [src]="course.formateurPhoto" width="30px" />
+                    </div>
+                    <span class="instructor-name">{{ course.formateurName }}</span>
+                  </div>
+                </div>
+                <div class="course-actions">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message si aucun cours trouvé -->
+        <div class="no-courses" *ngIf="filteredCourses.length === 0">
+          <div class="no-courses-content">
+            <i class="fas fa-search fa-3x"></i>
+            <h3>Aucun cours trouvé</h3>
+            <p>Aucun cours ne correspond à cette catégorie pour le moment.</p>
+            <button class="btn-reset" (click)="filterByCategory('ALL')">
+              Voir tous les cours
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+
+<!--  instructor section   -->
+
+
+<!-- experts-carousel.component.html -->
+ <section  id="instructors">
+  <div class="experts-section" >
+  <div class="section-header">
+    <h2 class="section-title">Nos Experts Formateurs</h2>
+    <p class="section-subtitle">Découvrez notre équipe d'experts qualifiés</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement des experts...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <p class="error-message">{{ error }}</p>
+    <button class="retry-btn" (click)="loadExperts()">Réessayer</button>
+  </div>
+
+  <!-- Carousel Container -->
+  <div *ngIf="!isLoading && !error && experts.length > 0"
+       class="carousel-container"
+       (mouseenter)="onMouseEnter()"
+       (mouseleave)="onMouseLeave()">
+    <!-- Navigation Buttons -->
+    <button
+      class="nav-btn nav-btn-prev"
+      (click)="prevSlide()"
+      [disabled]="!canGoPrev()"
+      [attr.aria-label]="'Précédent'">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <button
+      class="nav-btn nav-btn-next"
+      (click)="nextSlide()"
+      [disabled]="!canGoNext() && !autoPlay"
+      [attr.aria-label]="'Suivant'">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <!-- Carousel Track -->
+    <div class="carousel-track"
+         [style.transform]="'translateX(-' + (currentIndex * (100 / cardsPerView)) + '%)'">
+
+      <!-- Expert Cards -->
+      <div class="expert-card" *ngFor="let expert of experts; let i = index; trackBy: trackByExpert">
+        <!-- Formation Badge -->
+        <ng-template #loadingBadge>
+          <div class="formation-badge loading">
+            <div class="mini-spinner"></div>
+          </div>
+        </ng-template>
+
+        <!-- Card Header with Photo -->
+        <div class="card-header">
+          <div class="expert-photo-container">
+            <img
+              [src]="getPhotoUrl(expert.photo)"
+              [alt]="expert.firstName + ' ' + expert.lastName"
+              class="expert-photo">
+            <div class="online-indicator"></div>
+          </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body">
+          <h3 class="expert-name">
+            {{ expert.firstName }} {{ expert.lastName }}
+          </h3>
+
+          <p class="expert-grade">{{ expert.grade }}</p>
+
+          <div class="expert-contact">
+            <div class="contact-item">
+              <i class="fas fa-envelope"></i>
+              <span class="contact-text">{{ expert.email }}</span>
+            </div>
+
+            <div class="contact-item">
+              <i class="fas fa-phone"></i>
+              <span class="contact-text">{{ expert.phone }}</span>
+            </div>
+
+            <div class="contact-item" *ngIf="expert.adress">
+              <i class="fas fa-map-marker-alt"></i>
+              <span class="contact-text">{{ expert.adress }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Footer avec nombre de formations -->
+        <div class="card-footer">
+          <div class="formation-count" *ngIf="formationCounts[expert.id] !== undefined; else loadingFooter">
+            <i class="fas fa-graduation-cap"></i>
+            <span>{{ getFormationCount(expert.id) }} formation<span *ngIf="getFormationCount(expert.id) > 1">s</span></span>
+          </div>
+          <ng-template #loadingFooter>
+            <div class="formation-count loading">
+              <div class="mini-spinner"></div>
+              <span>Chargement...</span>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && experts.length === 0" class="empty-state">
+    <i class="fas fa-users"></i>
+    <h3>Aucun expert disponible</h3>
+    <p>Il n'y a actuellement aucun expert formateur enregistré.</p>
+  </div>
+
+  <!-- Progress Bar -->
+  <div *ngIf="experts.length > cardsPerView" class="progress-container">
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="getProgressPercentage()"></div>
+    </div>
+    <span class="progress-text">
+      {{ currentIndex + 1 }} / {{ getIndicators().length }}
+    </span>
+  </div>
+
+  <!-- Carousel Indicators -->
+  <div *ngIf="experts.length > cardsPerView" class="carousel-indicators">
+    <button
+      *ngFor="let indicator of getIndicators(); let i = index"
+      class="indicator"
+      [class.active]="i === currentIndex"
+      (click)="currentIndex = i"
+      [attr.aria-label]="'Aller à la slide ' + (i + 1)">
+    </button>
+  </div>
+</div>
+ </section>
+
+
+
+
+
+
+  <!-- Section Reviews Étudiants -->
+ <section class="reviews-section py-5">
+  <div class="container">
+
+    <!-- En-tête de section -->
+    <div class="section-header text-center mb-5">
+      <div class="section-badge">
+        <i class="fas fa-star"></i>
+        <span>Témoignages</span>
+      </div>
+      <h2 class="section-title mb-3">
+        Ce que disent nos <span class="text-primary">étudiants</span>
+      </h2>
+      <p class="section-description">
+        Découvrez les expériences authentiques de nos apprenants et leur parcours de réussite
+      </p>
+    </div>
+
+    <!-- Statistiques globales -->
+    <div class="reviews-stats mb-5" *ngIf="!loading && totalReviews > 0">
+      <div class="row align-items-center">
+        <div class="col-md-4 text-center">
+          <div class="average-rating-box">
+            <div class="rating-number">{{ averageRating }}</div>
+            <div class="rating-stars">
+              <i class="fas fa-star" *ngFor="let star of getStarsArray(Math.round(averageRating))"></i>
+             
+            </div>
+            <div class="rating-count">{{ totalReviews }} avis</div>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="rating-bars">
+            <div class="rating-bar-item" *ngFor="let rating of [5,4,3,2,1]">
+              <span class="rating-label">{{ rating }} <i class="fas fa-star"></i></span>
+              <div class="progress">
+                <div class="progress-bar" 
+                     [style.width.%]="getRatingPercentage(rating)"
+                     [class.bg-success]="rating >= 4"
+                     [class.bg-warning]="rating === 3"
+                     [class.bg-danger]="rating <= 2">
+                </div>
+              </div>
+              <span class="rating-percentage">{{ getRatingPercentage(rating) }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="reviews-filters mb-4" *ngIf="!loading && totalReviews > 0">
+      <button class="filter-btn" 
+              [class.active]="filteredReviews.length === reviews.length"
+              (click)="filterByRating(0)">
+        Tous les avis
+      </button>
+      <button class="filter-btn" 
+              *ngFor="let rating of [5,4,3,2,1]"
+              (click)="filterByRating(rating)">
+        {{ rating }} <i class="fas fa-star"></i>
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state text-center py-5" *ngIf="loading">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3">Chargement des témoignages...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="alert alert-danger" *ngIf="error && !loading">
+      <i class="fas fa-exclamation-circle me-2"></i>
+      {{ error }}
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state text-center py-5" *ngIf="!loading && !error && totalReviews === 0">
+      <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+      <h4>Aucun témoignage disponible</h4>
+      <p class="text-muted">Soyez le premier à partager votre expérience !</p>
+    </div>
+
+    <!-- Grid des reviews -->
+    <div class="reviews-grid" *ngIf="!loading && !error && paginatedReviews.length > 0">
+
+      <!-- Review Card -->
+      <div class="review-card" *ngFor="let review of paginatedReviews">
+        <div class="review-content">
+          
+          <!-- Rating -->
+          <div class="review-rating mb-3">
+            <div class="stars">
+              <i class="fas fa-star" 
+                 *ngFor="let star of getStarsArray(review.rating)"
+                 [class.active]="star"></i>
+              
+            </div>
+            <span class="rating-text">{{ review.rating }}/5</span>
+          </div>
+
+          <!-- Quote -->
+          <div class="review-quote">
+            <i class="fas fa-quote-left quote-icon"></i>
+            <p class="review-text">{{ review.commentaire }}</p>
+          </div>
+
+          <!-- Author -->
+          <div class="review-author">
+            <div class="author-avatar">
+              <div class="avatar-placeholder">
+                {{ getInitials(review.apprenantName || 'Anonyme') }}
+              </div>
+              <div class="avatar-badge">
+                <i class="fas fa-check"></i>
+              </div>
+            </div>
+            <div class="author-info">
+              <h5 class="author-name">{{ review.apprenantName || 'Apprenant' }}</h5>
+              <p class="author-course" *ngIf="review.moduleName">
+                <i class="fas fa-book me-1"></i>{{ review.moduleName }}
+              </p>
+              <p class="author-date">
+                <i class="far fa-calendar me-1"></i>{{ formatDate(review.date) }}
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Background decorative -->
+        <div class="review-bg-pattern"></div>
+      </div>
+
+    </div>
+
+    <!-- Pagination -->
+    <div class="reviews-pagination mt-5" *ngIf="!loading && !error && totalPages > 1">
+      <nav aria-label="Navigation des avis">
+        <ul class="pagination justify-content-center">
+          
+          <!-- Bouton précédent -->
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="previousPage()" aria-label="Précédent">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+
+          <!-- Première page -->
+          <li class="page-item" *ngIf="getVisiblePages()[0] > 1">
+            <a class="page-link" (click)="goToPage(1)">1</a>
+          </li>
+          <li class="page-item disabled" *ngIf="getVisiblePages()[0] > 2">
+            <span class="page-link">...</span>
+          </li>
+
+          <!-- Pages visibles -->
+          <li class="page-item" 
+              *ngFor="let page of getVisiblePages()"
+              [class.active]="page === currentPage">
+            <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
+          </li>
+
+          <!-- Dernière page -->
+          <li class="page-item disabled" *ngIf="getVisiblePages()[getVisiblePages().length - 1] < totalPages - 1">
+            <span class="page-link">...</span>
+          </li>
+          <li class="page-item" *ngIf="getVisiblePages()[getVisiblePages().length - 1] < totalPages">
+            <a class="page-link" (click)="goToPage(totalPages)">{{ totalPages }}</a>
+          </li>
+
+          <!-- Bouton suivant -->
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="nextPage()" aria-label="Suivant">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Info pagination -->
+      <div class="pagination-info text-center mt-3">
+        <span class="text-muted">
+          Affichage de {{ (currentPage - 1) * itemsPerPage + 1 }} à 
+          {{ Math.min(currentPage * itemsPerPage, filteredReviews.length) }} 
+          sur {{ filteredReviews.length }} avis
+        </span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+  <!-- Modal pour ajouter un avis -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- Footer repositionné et corrigé -->
+
+  <footer class="footer">
+    <div class="container-fluid " style="background: rgb(233, 234, 240); padding: 20px;">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h3>
+            <img src="assets/images/avatar/logo.png" width="150px" />
+          </h3>
+          <p>{{ footerData.brandDescription }}</p>
+          <div class="social-links">
+            <a *ngFor="let social of footerData.socialLinks" [href]="social.url" class="social-link" target="_blank"
+              rel="noopener noreferrer" [attr.aria-label]="'Suivez-nous sur ' + social.name">
+              <i [class]="social.icon" [attr.aria-hidden]="true"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-section" *ngFor="let section of footerData.sections">
+          <h4>{{ section.title }}</h4>
+          <ul class="footer-links">
+            <li *ngFor="let link of section.links">
+              <a [routerLink]="link.url">{{ link.text }}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>{{ footerData.copyright }}</p>
+        <div class="footer-bottom-links">
+          <a *ngFor="let link of footerData.bottomLinks" [routerLink]="link.url">
+            {{ link.text }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>

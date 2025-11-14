@@ -1,0 +1,242 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs 
+  title="Liste des Apprenants" 
+  [breadcrumbItems]="breadCrumbItems">
+</app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div id="apprenantsList">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+
+        <!-- Header -->
+        <div class="card-header">
+          <div class="row align-items-center g-2">
+            
+            <!-- Titre et formateur -->
+            <div class="col-lg-3 me-auto">
+              <h6 class="card-title mb-0">
+                Liste des Apprenants
+                <span class="badge bg-primary ms-1 align-baseline">
+                  {{ filteredApprenantsList.length }}
+                </span>
+              </h6>
+              <small class="text-muted" *ngIf="formateurName">
+                Formateur: {{ formateurName }}
+              </small>
+            </div>
+
+            <!-- Search -->
+            <div class="col-xl-2 col-lg-3 col-sm-5">
+              <div class="search-box">
+                <input type="text" 
+                       class="form-control search" 
+                       placeholder="Rechercher..." 
+                       [(ngModel)]="term" 
+                       (keyup)="filterdata()">
+                <i class="ri-search-line search-icon"></i>
+              </div>
+            </div>
+
+            <!-- Boutons actions -->
+            <div class="col-sm-auto">
+              <div class="hstack gap-2">
+                <button class="btn btn-subtle-secondary" 
+                        (click)="goBack()" 
+                        title="Retour">
+                  <i class="ri-arrow-left-line align-baseline me-1"></i> Retour
+                </button>
+
+                <button class="btn btn-subtle-success" 
+                        (click)="exportToCSV()" 
+                        title="Exporter en CSV" 
+                        *ngIf="filteredApprenantsList.length > 0">
+                  <i class="ri-file-excel-2-line align-baseline me-1"></i> Exporter
+                </button>
+
+                <button class="btn btn-subtle-info" 
+                        (click)="printList()" 
+                        title="Imprimer" 
+                        *ngIf="filteredApprenantsList.length > 0">
+                  <i class="ri-printer-line align-baseline me-1"></i> Imprimer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Header -->
+
+        <!-- Body -->
+        <div class="card-body mt-3">
+          <div class="table-responsive table-card">
+            
+            <!-- Table -->
+            <table class="table table-centered align-middle table-custom-effect table-nowrap mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="checkAll">
+                      <label class="form-check-label"></label>
+                    </div>
+                  </th>
+                  <th>ID</th>
+                  <th>Apprenant</th>
+            
+                  <th>Email</th>
+                  <th>Téléphone</th>
+                  <th>Niveau</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let data of filteredApprenantsList; let i = index" 
+                    id="a_{{data.id}}">
+                  
+               
+
+                  <td>
+                    <span class="fw-medium">#APP{{ data.id }}</span>
+                  </td>
+
+                  <td>
+                    <div class="d-flex gap-2 align-items-center">
+                      <div class="flex-shrink-0">
+                        <img [src]="data.photo || 'assets/images/users/avatar-1.jpg'" 
+                             class="avatar-xxs rounded-circle" alt="">
+                      </div>
+                      <div class="flex-grow-1">
+                        <h6 class="mb-0">{{ data.firstName }} {{ data.lastName }}</h6>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ data.email }}</td>
+                  <td>{{ data.phone || 'N/A' }}</td>
+
+                  <td>
+                    <span class="badge bg-info-subtle text-info" *ngIf="data.niveau">
+                      {{ data.niveau }}
+                    </span>
+                    <span class="text-muted" *ngIf="!data.niveau">N/A</span>
+                  </td>
+
+                  <td>
+                    <ul class="d-flex gap-2 list-unstyled mb-0">
+                      <li>
+                        <button class="btn btn-subtle-info btn-icon btn-sm" 
+                                (click)="viewDetails(data)" 
+                                title="Voir détails">
+                          <i class="ph-eye"></i>
+                        </button>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- End Table -->
+
+            <!-- Message si aucun résultat -->
+            <div class="noresult" 
+                 [ngClass]="(filteredApprenantsList.length != 0)?'d-none':''">
+              <div class="text-center py-4">
+                <i class="ph-magnifying-glass fs-1 text-primary"></i>
+                <h5 class="mt-2">Aucun résultat trouvé</h5>
+                <p class="text-muted mb-0">
+                  <span *ngIf="term">
+                    Aucun apprenant ne correspond à votre recherche "{{ term }}".
+                  </span>
+                  <span *ngIf="!term">
+                    Ce formateur n'a pas encore d'apprenants assignés.
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Body -->
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Détails Apprenant -->
+<div bsModal 
+     #viewDetailsModal="bs-modal" 
+     class="modal fade" 
+     id="viewDetailsModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content border-0">
+
+      <!-- Header Modal -->
+      <div class="modal-header">
+        <h5 class="modal-title">Détails de l'Apprenant</h5>
+        <button type="button" class="btn-close" 
+                (click)="viewDetailsModal.hide()"></button>
+      </div>
+
+      <!-- Body Modal -->
+      <div class="modal-body" *ngIf="selectedApprenant">
+        <div class="row">
+
+          <!-- Col gauche -->
+          <div class="col-lg-4 text-center">
+            <img [src]="selectedApprenant.photo || 'assets/images/users/avatar-1.jpg'"
+                 class="img-fluid rounded-circle mb-3"
+                 style="width: 150px; height: 150px; object-fit: cover;" alt="Photo">
+            <h5>{{ selectedApprenant.firstName }} {{ selectedApprenant.lastName }}</h5>
+            <span class="badge bg-info-subtle text-info" *ngIf="selectedApprenant.niveau">
+              {{ selectedApprenant.niveau }}
+            </span>
+          </div>
+
+          <!-- Col droite -->
+          <div class="col-lg-8">
+            <div class="table-responsive">
+              <table class="table table-borderless">
+                <tbody>
+                  <tr>
+                    <td class="fw-medium">ID:</td>
+                    <td>#APP{{ selectedApprenant.id }}</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-medium">Nom d'utilisateur:</td>
+                    <td>{{ selectedApprenant.firstName }} {{ selectedApprenant.lastName }}</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-medium">Email:</td>
+                    <td>{{ selectedApprenant.email }}</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-medium">Téléphone:</td>
+                    <td>{{ selectedApprenant.phone || 'Non renseigné' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-medium">Niveau:</td>
+                    <td>{{ selectedApprenant.niveau || 'Non renseigné' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-medium">Adresse:</td>
+                    <td>{{ selectedApprenant.adress || 'Non renseignée' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- End Body Modal -->
+
+      <!-- Footer Modal -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" 
+                (click)="viewDetailsModal.hide()">Fermer</button>
+      </div>
+
+    </div>
+  </div>
+</div>

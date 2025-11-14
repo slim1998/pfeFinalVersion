@@ -1,0 +1,147 @@
+<!-- ✅ Start Breadcrumbs -->
+<app-breadcrumbs title="Modules List" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- ✅ End Breadcrumbs -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card" id="modulesList">
+      <div class="card-body">
+        <div class="row align-items-center g-2">
+          <div class="col-lg-3 me-auto">
+            <h6 class="card-title mb-0">Modules List
+              <span class="badge bg-primary ms-1 align-baseline">{{moduleList?.length}}</span>
+            </h6>
+          </div>
+          <div class="col-lg-2">
+            <div class="search-box">
+              <input type="text"
+                     class="form-control search"
+                     placeholder="Rechercher un module..."
+                     [(ngModel)]="term"
+                     (keyup)="filterdata()">
+              <i class="ri-search-line search-icon"></i>
+            </div>
+          </div>
+          <div class="col-lg-auto">
+            <div class="hstack flex-wrap gap-2">
+              <button class="btn btn-subtle-danger d-none"
+                      id="remove-actions"
+                      (click)="deleteRecordModal.show()">
+                <i class="ri-delete-bin-2-line"></i>
+              </button>
+              <a href="javascript:void(0);" class="btn btn-secondary">
+                <i class="bi bi-plus-circle align-baseline me-1"></i> Ajouter Module
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ Table -->
+      <div class="card-body">
+        <div class="table-responsive table-card" >
+          <table class="table table-centered align-middle table-custom-effect table-nowrap mb-0">
+            <thead class="text-muted">
+              <tr>
+                <th>
+                  <div class="form-check">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           id="checkAll"
+                           [(ngModel)]="masterSelected"
+                           (change)="checkUncheckAll($event)">
+                    <label class="form-check-label" for="checkAll"></label>
+                  </div>
+                </th>
+                <th scope="col" class="sort cursor-pointer" >Titre</th>
+                <th scope="col" class="sort cursor-pointer" >Niveau</th>
+                <th scope="col" class="sort cursor-pointer" >Prix (DT)</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="list form-check-all">
+              @for (module of modules; track $index) {
+              <tr id="m_{{module.id}}">
+                <td>
+                  <div class="form-check">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           value="{{module.id}}"
+
+                        >
+                    <label class="form-check-label"></label>
+                  </div>
+                </td>
+                <td class="titre">
+                  <a routerLink="/modules/{{module.id}}" class="text-reset">
+                    {{module.titre}}
+                  </a>
+                </td>
+                <td class="level">{{module.level}}</td>
+                <td class="prixInitial"><span class="fw-medium">{{module.prixInitial | currency:'TND'}}</span></td>
+                <td>
+                  <ul class="d-flex gap-2 list-unstyled mb-0">
+                    <li>
+                      <a routerLink="/modules/{{module.id}}"
+                         class="btn btn-subtle-primary btn-icon btn-sm ">
+                        <i class="ph-eye"></i>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="javascript:void(0);"
+
+                         class="btn btn-subtle-secondary btn-icon btn-sm edit-item-btn">
+                        <i class="ph-pencil"></i>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="javascript:void(0);"
+                         (click)="removeItem(module.id!)"
+                         class="btn btn-subtle-danger btn-icon btn-sm remove-item-btn">
+                        <i class="ph-trash"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+
+          <!-- ✅ Aucun résultat -->
+          <div class="noresult" style="display: none;">
+            <div class="text-center py-4">
+              <i class="ph-magnifying-glass fs-1 text-primary"></i>
+              <h5 class="mt-2">Aucun résultat trouvé</h5>
+              <p class="text-muted mb-0">Essayez avec un autre mot-clé.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ Loader -->
+        <!-- <div id="elmLoader">
+          <div class="spinner-border text-primary avatar-sm" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div> -->
+
+        <!-- ✅ Pagination -->
+        <div class="row align-items-center mt-4 pt-2" id="pagination-element">
+          <div class="col-sm">
+            <div class="text-muted text-center text-sm-start">
+              Affichage de <span class="fw-semibold">{{modules?.length}}</span>
+              sur <span class="fw-semibold">{{moduleList?.length}}</span> résultats
+            </div>
+          </div>
+          <div class="col-sm-auto mt-3 mt-sm-0">
+            <pagination class="pagination-wrap hstack gap-2 justify-content-center"
+                        [totalItems]="moduleList?.length ?? 0"
+                        [itemsPerPage]="10"
+                        (pageChanged)="pageChanged($event)">
+            </pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

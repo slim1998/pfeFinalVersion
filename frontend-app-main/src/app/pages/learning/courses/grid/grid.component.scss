@@ -1,0 +1,136 @@
+// Modal Scroll Styles
+
+// Custom Scrollbar
+.modal-body {
+  // Webkit browsers (Chrome, Safari, Edge)
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+    
+    &:hover {
+      background: #555;
+    }
+  }
+
+  // Firefox
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+// Sticky Tabs (reste visible en haut lors du scroll)
+.sticky-tabs {
+  position: sticky;
+  top: -1rem;
+  background: white;
+  z-index: 10;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+// Sticky Footer (reste visible en bas)
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+}
+
+// Modal Dialog Scrollable
+.modal-dialog-scrollable {
+  .modal-content {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-body {
+    overflow-y: auto;
+    flex: 1;
+    padding: 1.5rem;
+  }
+
+  .modal-header,
+  .modal-footer {
+    flex-shrink: 0;
+  }
+}
+
+// Animation de scroll
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-pane {
+  animation: slideInFromTop 0.3s ease-out;
+}
+
+// Amélioration des cards dans le scroll
+.card {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .modal-xl {
+    max-width: 95%;
+  }
+
+  .modal-body {
+    padding: 1rem;
+    max-height: 75vh !important;
+  }
+
+  .sticky-tabs {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    padding: 0.75rem;
+  }
+}
+
+// Indicateur de scroll (optionnel)
+.modal-body {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      to right,
+      #405189,
+      #0ab39c
+    );
+    z-index: 11;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &.scrolled::before {
+    opacity: 1;
+  }
+}

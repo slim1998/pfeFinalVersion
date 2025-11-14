@@ -1,0 +1,611 @@
+// results-certifications.component.scss
+
+// ==================== STATISTICS CARDS ====================
+.card-animate {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+// ==================== CERTIFICATION CARDS ====================
+.certification-card {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  
+  &:hover {
+    transform: translateY(-5px);
+    border-color: #ffc107;
+    box-shadow: 0 10px 25px rgba(255, 193, 7, 0.3);
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .certification-details {
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+// ==================== TABLE STYLES ====================
+.table {
+  margin-bottom: 0;
+
+  thead {
+    th {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #dee2e6;
+    }
+  }
+
+  tbody {
+    tr {
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+        transform: scale(1.01);
+      }
+
+      td {
+        vertical-align: middle;
+        padding: 1rem;
+      }
+    }
+  }
+
+  img {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+// ==================== CERTIFICATE MODAL STYLES ====================
+.certificate-container {
+  font-family: 'Times New Roman', serif;
+  animation: certificateAppear 0.8s ease-out;
+}
+
+@keyframes certificateAppear {
+  0% {
+    opacity: 0;
+    transform: rotateY(-90deg) scale(0.8);
+  }
+  50% {
+    opacity: 0.5;
+    transform: rotateY(-45deg) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
+  }
+}
+
+.certificate-border {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #ffffff 100%);
+  border: 3px solid transparent;
+  border-image: linear-gradient(45deg, #ffc107, #28a745, #17a2b8, #ffc107) 1;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(255, 255, 255, 0.4), 
+      transparent);
+    animation: certificateShine 3s infinite;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+}
+
+@keyframes certificateShine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.certificate-title {
+  font-family: 'Times New Roman', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.cert-detail {
+  padding: 0.5rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+  }
+
+  strong {
+    display: block;
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+    font-weight: 700;
+  }
+
+  small {
+    font-size: 0.85rem;
+    opacity: 0.8;
+  }
+}
+
+.signature-line {
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #6c757d, transparent);
+  margin-bottom: 8px;
+  animation: signatureAppear 1s ease-out 0.5s both;
+}
+
+@keyframes signatureAppear {
+  0% { width: 0; opacity: 0; }
+  100% { width: 120px; opacity: 1; }
+}
+
+.qr-placeholder {
+  background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+  border: 1px dashed #6c757d;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    transform: rotate(5deg);
+  }
+
+  i {
+    font-size: 1.5rem;
+    opacity: 0.6;
+  }
+}
+
+// ==================== PROGRESS BAR ====================
+.progress {
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #e9ecef;
+
+  .progress-bar {
+    transition: width 1s ease-in-out;
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 25px;
+    animation: progressAnimation 1.5s ease-in-out;
+  }
+}
+
+@keyframes progressAnimation {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+// ==================== BADGES ====================
+.badge {
+  padding: 0.5rem 0.75rem;
+  font-weight: 500;
+  border-radius: 6px;
+
+  &.bg-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  }
+
+  &.bg-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%) !important;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+  }
+
+  &.bg-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  }
+
+  &.bg-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+  }
+}
+
+// ==================== BUTTONS ====================
+.btn {
+  transition: all 0.3s ease;
+  font-weight: 500;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-group {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+// ==================== SEARCH AND FILTERS ====================
+.input-group {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+
+  .input-group-text {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-right: none;
+  }
+
+  .form-control {
+    border-left: none;
+    
+    &:focus {
+      box-shadow: none;
+      border-color: #dee2e6;
+    }
+  }
+}
+
+.form-select {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+
+  &:focus {
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+  }
+}
+
+// ==================== EMPTY STATES ====================
+.text-center {
+  i {
+    opacity: 0.5;
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  h5, p {
+    animation: fadeIn 0.8s ease-in;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ==================== MODAL ENHANCEMENTS ====================
+.modal {
+  &.show {
+    display: block !important;
+  }
+
+  .modal-dialog {
+    animation: modalSlideDown 0.3s ease-out;
+  }
+
+  .modal-content {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+    border-bottom: 3px solid #e0a800;
+    padding: 1.5rem;
+
+    .modal-title {
+      font-weight: 700;
+      text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-close {
+      filter: invert(1);
+      opacity: 0.8;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: 2rem;
+  }
+
+  .modal-footer {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-top: 1px solid #dee2e6;
+    padding: 1.5rem;
+
+    .btn {
+      min-width: 120px;
+      border-radius: 25px;
+    }
+  }
+}
+
+@keyframes modalSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ==================== RESPONSIVE DESIGN ====================
+@media (max-width: 768px) {
+  .card-animate {
+    margin-bottom: 1rem;
+  }
+
+  .certification-card {
+    margin-bottom: 1rem;
+  }
+
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+
+  .certificate-title {
+    font-size: 1.6rem;
+  }
+
+  .certificate-border {
+    margin: 0 0.5rem;
+    padding: 1.5rem;
+  }
+
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .btn {
+      width: 100%;
+      min-width: auto;
+    }
+  }
+
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+
+    .btn {
+      border-radius: 0 !important;
+
+      &:first-child {
+        border-radius: 6px 6px 0 0 !important;
+      }
+
+      &:last-child {
+        border-radius: 0 0 6px 6px !important;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .page-title-box {
+    flex-direction: column;
+    align-items: flex-start !important;
+
+    .page-title-right {
+      margin-top: 1rem;
+      width: 100%;
+
+      .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .certificate-container {
+    max-width: 100% !important;
+  }
+
+  .certificate-title {
+    font-size: 1.4rem;
+  }
+
+  .cert-detail strong {
+    font-size: 0.9rem;
+  }
+
+  .row.mb-4 {
+    .col-md-6, .col-md-3 {
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+// ==================== PRINT STYLES ====================
+@media print {
+  .page-title-box,
+  .btn,
+  .nav-tabs,
+  .input-group,
+  .form-select,
+  .modal-header,
+  .modal-footer {
+    display: none !important;
+  }
+
+  .card {
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  .certificate-border {
+    border: 3px solid #000 !important;
+    background: white !important;
+  }
+
+  .table {
+    font-size: 0.875rem;
+  }
+}
+
+// ==================== DARK MODE SUPPORT ====================
+@media (prefers-color-scheme: dark) {
+  .card {
+    background-color: #1a1a1a;
+    border-color: #333;
+    color: #fff;
+  }
+
+  .table {
+    color: #fff;
+
+    thead {
+      background-color: #2d2d2d;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  .certificate-border {
+    background: linear-gradient(135deg, #2d2d2d 0%, #3d3d3d 50%, #2d2d2d 100%);
+    color: #fff;
+  }
+
+  .certificate-title {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffc107 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .cert-detail {
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+  }
+
+  .modal-content {
+    background-color: #1a1a1a;
+    color: #fff;
+  }
+
+  .input-group-text,
+  .form-control,
+  .form-select {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #fff;
+  }
+}
+
+// ==================== ANIMATIONS ====================
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+// ==================== UTILITY CLASSES ====================
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shadow-hover {
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+  }
+}

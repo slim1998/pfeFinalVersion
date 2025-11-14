@@ -1,0 +1,33 @@
+@"
+# Angular
+.angular/
+dist/
+.angular/cache/
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# Environment files
+.env
+.env.local
+*.env
+
+# Logs
+*.log
+logs/
+
+# Large media files
+**/uploads/**/*.mp4
+**/uploads/**/*.avi
+**/uploads/**/*.mov
+**/uploads/**/*.mkv
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+"@ | Out-File -FilePath .gitignore -Encoding utf8

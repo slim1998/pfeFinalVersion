@@ -1,0 +1,350 @@
+#apprenantsList {
+  .card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: none;
+    border-radius: 8px;
+    
+    .card-header {
+      background-color: #fff;
+      border-bottom: 1px solid #e9ecef;
+      padding: 1.25rem;
+      
+      .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #495057;
+        
+        .badge {
+          font-size: 0.75rem;
+          padding: 0.25rem 0.5rem;
+        }
+      }
+      
+      small.text-muted {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+      }
+    }
+    
+    .card-body {
+      padding: 1.5rem;
+    }
+  }
+  
+  // Search box
+  .search-box {
+    position: relative;
+    
+    .search {
+      padding-left: 2.5rem;
+      border-radius: 6px;
+      
+      &:focus {
+        border-color: #5156be;
+        box-shadow: 0 0 0 0.2rem rgba(81, 86, 190, 0.15);
+      }
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #878a99;
+      font-size: 1rem;
+    }
+  }
+  
+  // Table styles
+  .table-card {
+    .table {
+      thead {
+        th {
+          background-color: #f3f6f9;
+          color: #495057;
+          font-weight: 600;
+          font-size: 0.875rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          border: none;
+          padding: 1rem 0.75rem;
+          
+          &:first-child {
+            border-radius: 8px 0 0 0;
+          }
+          
+          &:last-child {
+            border-radius: 0 8px 0 0;
+          }
+        }
+      }
+      
+      tbody {
+        tr {
+          border-bottom: 1px solid #e9ecef;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          }
+          
+          td {
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+            color: #495057;
+            
+            .avatar-xxs {
+              width: 32px;
+              height: 32px;
+              object-fit: cover;
+            }
+            
+            h6 {
+              font-size: 0.875rem;
+              font-weight: 500;
+              margin-bottom: 0;
+            }
+            
+            .fw-medium {
+              font-weight: 500;
+              color: #5156be;
+            }
+            
+            .badge {
+              font-size: 0.75rem;
+              padding: 0.35rem 0.65rem;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+    }
+    
+    // Custom effect for table
+    .table-custom-effect {
+      tbody tr {
+        position: relative;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 3px;
+          background-color: #5156be;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        
+        &:hover::before {
+          opacity: 1;
+        }
+      }
+    }
+  }
+  
+  // No result section
+  .noresult {
+    padding: 3rem 1rem;
+    
+    i {
+      color: #5156be;
+      opacity: 0.5;
+    }
+    
+    h5 {
+      color: #495057;
+      font-weight: 600;
+      margin-top: 1rem;
+    }
+    
+    p {
+      color: #878a99;
+      font-size: 0.9rem;
+    }
+  }
+  
+  // Buttons
+  .btn {
+    border-radius: 6px;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    
+    &.btn-icon {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      
+      i {
+        font-size: 1rem;
+      }
+    }
+    
+    &.btn-subtle-info {
+      background-color: rgba(13, 110, 253, 0.1);
+      color: #0d6efd;
+      border: none;
+      
+      &:hover {
+        background-color: rgba(13, 110, 253, 0.2);
+        color: #0d6efd;
+      }
+    }
+    
+    &.btn-subtle-success {
+      background-color: rgba(25, 135, 84, 0.1);
+      color: #198754;
+      border: none;
+      
+      &:hover {
+        background-color: rgba(25, 135, 84, 0.2);
+        color: #198754;
+      }
+    }
+    
+    &.btn-subtle-secondary {
+      background-color: rgba(108, 117, 125, 0.1);
+      color: #6c757d;
+      border: none;
+      
+      &:hover {
+        background-color: rgba(108, 117, 125, 0.2);
+        color: #6c757d;
+      }
+    }
+  }
+  
+  // Modal styles
+  .modal {
+    .modal-content {
+      border-radius: 8px;
+      
+      .modal-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        padding: 1.25rem 1.5rem;
+        
+        .modal-title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #495057;
+        }
+      }
+      
+      .modal-body {
+        padding: 2rem 1.5rem;
+        
+        .table-borderless {
+          td {
+            padding: 0.75rem;
+            
+            &.fw-medium {
+              color: #878a99;
+              width: 40%;
+            }
+          }
+        }
+        
+        img.rounded-circle {
+          border: 3px solid #e9ecef;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+      }
+      
+      .modal-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+        padding: 1rem 1.5rem;
+      }
+    }
+  }
+  
+  // Form check styles
+  .form-check {
+    padding-left: 1.5rem;
+    
+    .form-check-input {
+      width: 1.125rem;
+      height: 1.125rem;
+      margin-top: 0;
+      cursor: pointer;
+      
+      &:checked {
+        background-color: #5156be;
+        border-color: #5156be;
+      }
+      
+      &:focus {
+        border-color: #5156be;
+        box-shadow: 0 0 0 0.2rem rgba(81, 86, 190, 0.15);
+      }
+    }
+  }
+  
+  // Responsive
+  @media (max-width: 991px) {
+    .card-header {
+      .row {
+        gap: 1rem;
+      }
+      
+      .col-lg-3 {
+        flex: 0 0 100%;
+      }
+    }
+    
+    .hstack {
+      flex-wrap: wrap;
+      
+      .btn {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+      }
+    }
+  }
+  
+  @media (max-width: 767px) {
+    .table-responsive {
+      font-size: 0.85rem;
+    }
+    
+    .modal-body {
+      .row {
+        .col-lg-4,
+        .col-lg-8 {
+          flex: 0 0 100%;
+          margin-bottom: 1rem;
+        }
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  #apprenantsList {
+    .card-header .hstack,
+    .search-box,
+    .form-check,
+    .btn,
+    tbody tr td:last-child {
+      display: none !important;
+    }
+    
+    .card {
+      box-shadow: none !important;
+    }
+    
+    .table {
+      font-size: 0.85rem;
+    }
+  }
+}
+

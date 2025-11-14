@@ -1,0 +1,144 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="My Courses " [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="row">
+  <div class="col-xl-9 col-lg-8">
+    <div class="card">
+      <div class="card-body d-flex gap-3 align-items-center">
+        <h6 class="card-title flex-grow-1 mb-0">My Courses <span
+            class="badge bg-dark-subtle text-body align-baseline ms-1">{{ modules?.length || 0 }}</span></h6>
+
+      </div>
+    </div>
+    <div class="row">
+      @for (module of modules; track module.id) {
+      <div class="col-lg-12">
+        <div class="card overflow-hidden">
+          <div class="row g-0">
+            <div class="col-xl-3 col-md-4">
+              <div
+                class="card-body text-center learning-widgets d-flex align-items-center justify-content-center h-100">
+                <img src="{{ module.image || 'assets/images/default-course.jpg' }}" alt="{{ module.titre }}"
+                  class="avatar-lg">
+                <img src="{{ module.image || 'assets/images/default-course.jpg' }}" alt="{{ module.titre }}"
+                  class="effect">
+              </div>
+            </div><!--end col-->
+            <div class="col-xl-9 col-md-8">
+              <div class="card-body">
+                <div class="d-flex mb-3 align-items-center">
+                  <div class="flex-grow-1">
+                    <span class="badge" [ngClass]="{
+                                                'bg-success-subtle text-success': module.level === 'BEGINNER',
+                                                'bg-warning-subtle text-warning': module.level === 'INTERMEDIATE',
+                                                'bg-danger-subtle text-danger': module.level === 'ADVENCED',
+                                                'bg-info-subtle text-info': module.level === 'ALL_LEVEL'
+                                              }">
+                      {{ getLevelDisplay(module.level) }}
+                    </span>
+                  </div>
+                  <div class="flex-shrink-0 fs-lg fw-medium">
+                    <!-- Affichage du prix avec discount si applicable -->
+                    <span *ngIf="module.discount && module.discount > 0"
+                      class="text-muted text-decoration-line-through me-2">
+                      {{ module.prixInitial | currency:'DNT':'symbol':'1.2-2' }}
+                    </span>
+                    <span>{{ getFinalPrice(module) | currency:'DNT':'symbol':'1.2-2' }}</span>
+                  </div>
+                </div>
+                <h5 class="text-truncate text-capitalize">
+                  <a routerLink="/learning/overview/{{ module.id }}" class="text-reset">{{ module.titre }}</a>
+                </h5>
+                <p class="text-muted">{{ module.short_description }}</p>
+                <ul class="d-flex align-items-center gap-2 flex-wrap list-unstyled mb-0">
+                  <li *ngIf="module.lectureTime">
+                    <p class="text-muted mb-0">
+                      <i class="bi bi-clock align-baseline text-primary me-1"></i>
+                      {{ module.lectureTime }}
+                    </p>
+                  </li>
+                  <li *ngIf="module.chapitres?.length">
+                    <p class="text-muted mb-0">
+                      <i class="ph ph-graduation-cap align-middle text-primary me-1"></i>
+                      {{ module.chapitres!.length }} Chapitres
+                    </p>
+                  </li>
+                  <li>
+                    <p class="text-muted mb-0">
+                      <i class="ph ph-globe-stand align-middle text-primary me-1"></i>
+                      Français
+                    </p>
+                  </li>
+                </ul>
+              </div>
+              <div class="card-body border-top border-dashed hstack align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 position-relative">
+                  <div class="flex-shrink-0">
+                    <img src="{{ module.formateurPhoto || 'assets/images/users/default-avatar.jpg' }}"
+                      alt="{{ module.formateurName }}" class="avatar-xxs rounded-circle">
+                  </div>
+                  <h6 class="flex-grow-1 mb-0">
+                    <a routerLink="/formateur/profile/{{ module.formateurId }}" class="text-reset stretched-link">
+                      {{ module.formateurName || 'Formateur' }}
+                    </a>
+                  </h6>
+                </div>
+
+
+
+                <div class="flex-shrink-0 me-5">
+                  <a (click)="goDetails(module.id)" class="btn btn-primary"><i
+                      class="bi bi-bag align-baseline me-1"></i>
+                    Suivre Cour</a>
+                </div>
+
+
+
+
+
+
+
+                <div class="flex-shrink-0">
+                  <!-- Rating statique pour l'instant, à adapter selon vos besoins -->
+                  <span class="badge bg-warning-subtle text-warning">
+                    <i class="bi bi-star-fill align-baseline me-1"></i> 4.5
+                  </span>
+                </div>
+              </div>
+              <!-- Progress bar statique pour l'instant, à adapter selon la progression de l'utilisateur -->
+              <div class="bg-primary-subtle progress-sm rounded-0" tooltip="0% Completed">
+                <progressbar [value]="0" type="info"></progressbar>
+              </div>
+            </div><!--end col-->
+          </div><!--end row-->
+        </div><!--end card-->
+      </div><!--end col-->
+      }
+      <div id="elmLoader" *ngIf="isLoading">
+        <div class="spinner-border text-primary avatar-sm" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    </div><!--end row-->
+  </div><!--end col-->
+  <div class="col-xl-3 col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="text-center mb-0 pb-2">
+          <img [src]="student!.photo" alt="" class="avatar-md rounded-circle d-block mx-auto">
+          <div class="mt-3">
+            <a routerLink="/pages/profile">
+              <h5>{{ student!.firstName }} {{ student!.lastName }}</h5>
+            </a>
+            <p class="text-muted mb-0">Apprenant</p>
+          </div>
+        </div>
+        <div class="upcoming-scheduled pt-4">
+          <input type="text" class="form-control" mwlFlatpickr [altInput]="true" [convertModelValue]="true"
+            [inline]="true">
+        </div>
+      </div>
+    </div><!--end card-->
+  </div><!--end col-->
+</div>

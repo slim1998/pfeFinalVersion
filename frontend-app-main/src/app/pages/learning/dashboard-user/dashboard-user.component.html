@@ -1,0 +1,500 @@
+<!-- Dashboard User Component -->
+<app-breadcrumbs [title]="'Dashboard'" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<!-- Loading Spinner -->
+<div *ngIf="isLoading" class="text-center py-5">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<!-- DASHBOARD ADMINISTRATEUR -->
+<div *ngIf="!isLoading && userRole === 'ADMINISTRATEUR'" class="admin-dashboard">
+  <div class="row">
+    <div class="col-12">
+      <h4 class="mb-4">Tableau de bord Administrateur</h4>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="row">
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Total Apprenants</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-4">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                <span class="counter-value" [attr.data-target]="stats.totalApprenants">
+                  {{ stats.totalApprenants }}
+                </span>
+              </h4>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-primary-subtle rounded fs-3">
+                <i class="bi bi-people text-primary"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Total Formateurs</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-4">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                <span class="counter-value">{{ stats.totalFormateurs }}</span>
+              </h4>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-success-subtle rounded fs-3">
+                <i class="bi bi-person-badge text-success"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Total Modules</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-4">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                <span class="counter-value">{{ stats.totalModules }}</span>
+              </h4>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-warning-subtle rounded fs-3">
+                <i class="bi bi-book text-warning"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Demandes en attente</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-4">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                <span class="counter-value">{{ stats.demandesEnAttente }}</span>
+              </h4>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-danger-subtle rounded fs-3">
+                <i class="bi bi-hourglass-split text-danger"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activities -->
+  <div class="row mt-4">
+    <div class="col-xl-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Dernières demandes d'achat</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Apprenant</th>
+                  <th>Module</th>
+                  <th>Date</th>
+                  <th>Statut</th>
+                  
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let demande of recentDemandes">
+                  <td>{{ demande.apprenantName }}</td>
+                  <td>{{ demande.moduleName }}</td>
+                  <td>{{ demande.dateDemande | date: 'dd/MM/yyyy' }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatutBadgeClass(demande.statut)">
+                      {{ demande.statut }}
+                    </span>
+                  </td>
+                 
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Catégories populaires</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center" 
+                *ngFor="let cat of topCategories">
+              {{ cat.nom }}
+              <span class="badge bg-primary rounded-pill">{{ cat.moduleCount }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD FORMATEUR -->
+<div *ngIf="!isLoading && userRole === 'FORMATEUR'" class="formateur-dashboard">
+  <div class="row">
+    <div class="col-12">
+      <h4 class="mb-4">Tableau de bord Formateur</h4>
+      <p class="text-muted">Bienvenue, {{ userName }}</p>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="row">
+    <div class="col-xl-4 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Mes Modules</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-4">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                <span class="counter-value">{{ formateurStats.totalModules }}</span>
+              </h4>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-primary-subtle rounded fs-3">
+                <i class="bi bi-journal-text text-primary"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Mes Apprenants</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-4">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                <span class="counter-value">{{ formateurStats.totalApprenants }}</span>
+              </h4>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-success-subtle rounded fs-3">
+                <i class="bi bi-people text-success"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Certifications émises</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-4">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                <span class="counter-value">{{ formateurStats.totalCertifications }}</span>
+              </h4>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-warning-subtle rounded fs-3">
+                <i class="bi bi-award text-warning"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modules et Reviews -->
+  <div class="row mt-4">
+    <div class="col-xl-8">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Mes Modules</h5>
+          <a routerLink="/learning/modules-grid" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Nouveau Module
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Titre</th>
+                  <th>Niveau</th>
+                  <th>Prix</th>
+                  <th>Inscrits</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let module of myModules">
+                  <td>{{ module.titre }}</td>
+                  <td><span class="badge" [ngClass]="getLevelBadgeClass(module.level)">{{ module.level }}</span></td>
+                  <td>{{ module.prixInitial }}€</td>
+                  <td>{{ module.enrolledCount || 0 }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-info" (click)="navigateToModule(module.id)">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Derniers avis</h5>
+        </div>
+        <div class="card-body">
+          <div *ngFor="let review of recentReviews" class="mb-3 pb-3 border-bottom">
+            <div class="d-flex justify-content-between">
+              <h6 class="mb-1">{{ review.apprenantName }}</h6>
+              <div class="text-warning">
+                <i class="bi bi-star-fill" *ngFor="let star of [1,2,3,4,5]" 
+                   [class.text-muted]="star > review.rating"></i>
+              </div>
+            </div>
+            <p class="text-muted small mb-0">{{ review.commentaire }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD APPRENANT -->
+<div *ngIf="!isLoading && userRole === 'APPRENANT'" class="apprenant-dashboard">
+  <div class="row">
+    <div class="col-12">
+      <h4 class="mb-4">Mon Espace d'Apprentissage</h4>
+      <p class="text-muted">Bienvenue, {{ userName }}</p>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="row">
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Formations achetées</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-4">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                <span class="counter-value">{{ apprenantStats.modulesAchetes }}</span>
+              </h4>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-primary-subtle rounded fs-3">
+                <i class="bi bi-book text-primary"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Certifications</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-4">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                <span class="counter-value">{{ apprenantStats.certifications }}</span>
+              </h4>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-success-subtle rounded fs-3">
+                <i class="bi bi-award text-success"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Demandes en cours</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-4">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                <span class="counter-value">{{ apprenantStats.demandesEnCours }}</span>
+              </h4>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-warning-subtle rounded fs-3">
+                <i class="bi bi-hourglass-split text-warning"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Avis donnés</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-4">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                <span class="counter-value">{{ apprenantStats.reviewsCount }}</span>
+              </h4>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-info-subtle rounded fs-3">
+                <i class="bi bi-star text-info"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mes Formations -->
+  <div class="row mt-4">
+    <div class="col-xl-8">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Mes Formations en cours</h5>
+          <a routerLink="/learning/courses/list" class="btn btn-sm btn-primary">
+            <i class="bi bi-search me-1"></i> Découvrir plus
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6" *ngFor="let module of myPurchasedModules">
+              <div class="card border mb-3">
+                <div class="card-body">
+                  <div class="d-flex">
+                    <img [src]="module.image || 'assets/images/default-module.jpg'" 
+                         class="rounded" 
+                         style="width: 80px; height: 80px; object-fit: cover;">
+                    <div class="ms-3 flex-grow-1">
+                      <h6 class="mb-1">{{ module.titre }}</h6>
+                      <p class="text-muted small mb-2">{{ module.formateurName }}</p>
+                      <div class="progress" style="height: 6px;">
+                        <div class="progress-bar" role="progressbar" 
+                             [style.width]="module.progress + '%'"></div>
+                      </div>
+                      <small class="text-muted">{{ module.progress || 0 }}% complété</small>
+                    </div>
+                  </div>
+                  <button class="btn btn-sm btn-primary w-100 mt-3" 
+                          (click)="navigateToModule(module.id)">
+                    Continuer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Mes Certifications</h5>
+        </div>
+        <div class="card-body">
+          <div *ngFor="let cert of myCertifications" class="mb-3 pb-3 border-bottom">
+            <div class="d-flex align-items-center">
+              <div class="avatar-sm flex-shrink-0">
+                <span class="avatar-title bg-success-subtle rounded">
+                  <i class="bi bi-award text-success fs-4"></i>
+                </span>
+              </div>
+              <div class="ms-3">
+                <h6 class="mb-0">{{ cert.moduleName }}</h6>
+                <small class="text-muted">{{ cert.dateObtention | date: 'dd/MM/yyyy' }}</small>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="myCertifications.length === 0" class="text-center text-muted">
+            <i class="bi bi-inbox fs-1"></i>
+            <p class="mt-2">Aucune certification pour le moment</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,634 @@
+<!-- Main Quiz Management Interface avec Accordion pour les chapitres -->
+<div class="container-fluid py-4">
+
+  <!-- Formations et Chapitres -->
+  <div *ngFor="let formation of listFormation; let formationIndex = index" class="formation-card mb-4">
+    <div class="formation-header">
+      <div class="row align-items-center">
+        <div class="col-md-3">
+          <div class="formation-image">
+            <img [src]="formation.image || 'assets/images/courses/4by3/01.jpg'" alt="Formation image" class="img-fluid">
+          </div>
+        </div>
+        <div class="col-md-9">
+          <h3 class="formation-title">
+            <i class="bi bi-book me-2"></i>
+            {{ formation.titre }}
+          </h3>
+          <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <!-- BOUTON DEBUG TEMPORAIRE (décommenter pour tester) -->
+            <!-- <button class="btn btn-sm btn-info mb-2" (click)="debugFormationQuizzes(formation.id!)">
+              <i class="bi bi-bug"></i> Debug Quiz
+            </button> -->
+
+            <!-- Si quiz existe : afficher une card cliquable -->
+            <div *ngIf="hasQuizzes(formation.id!)" class="quiz-module-quick-access mb-2 flex-grow-1">
+              <div class="quiz-module-badge-card" 
+                   (click)="openEditQuizModal(createQuizModal, getQuizzesForFormation(formation.id!)[0].id, formation.id!)">
+                <div class="badge-content">
+                  <i class="bi bi-patch-check-fill me-2"></i>
+                  <span class="badge-text">1 quiz module</span>
+                  <span class="badge-action">Cliquer pour modifier</span>
+                </div>
+                <div class="badge-actions-icons">
+                  <i class="bi bi-pencil-square me-2" title="Modifier"></i>
+                  <i class="bi bi-trash-fill text-danger" 
+                     (click)="deleteQuiz(getQuizzesForFormation(formation.id!)[0].id, formation.id!); $event.stopPropagation()" 
+                     title="Supprimer"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Si pas de quiz : afficher le bouton de création -->
+            <div *ngIf="!hasQuizzes(formation.id!)" class="d-flex align-items-center gap-2 flex-wrap mb-2 flex-grow-1">
+              <span class="badge bg-warning">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Aucun quiz module
+              </span>
+              <button class="btn btn-nouveau-quiz" 
+                      (click)="openCreateQuizModal(formation.id!)">
+                <i class="bi bi-plus-circle me-2"></i>
+                Nouveau Quiz Module
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Quiz Module (Nouveau format détaillé) -->
+    <div class="quiz-module-section" *ngIf="hasQuizzes(formation.id!)">
+      <div class="quiz-module-header">
+        <h5 class="mb-0">
+          <i class="bi bi-patch-check-fill me-2 text-primary"></i>
+          Quiz Module de Formation
+        </h5>
+      </div>
+
+      <div class="quiz-module-body">
+        <div *ngFor="let quiz of getQuizzesForFormation(formation.id!)" class="module-quiz-card">
+          
+          <!-- En-tête du quiz module -->
+          <div class="module-quiz-header">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="quiz-main-info">
+                <div class="d-flex align-items-center mb-2">
+                  <span class="quiz-id-badge">#{{ quiz.id }}</span>
+                  <h6 class="quiz-title-module mb-0 ms-3">{{ quiz.title }}</h6>
+                </div>
+                <div class="quiz-meta-info">
+                  <span class="meta-item">
+                    <i class="bi bi-question-circle me-1"></i>
+                    {{ quiz.questions?.length || 0 }} question(s)
+                  </span>
+                  <span class="meta-item">
+                    <i class="bi bi-star-fill me-1"></i>
+                    {{ getTotalPoints(quiz.questions || []) }} points
+                  </span>
+                  <span class="meta-item">
+                    <i class="bi bi-clock me-1"></i>
+                    {{ getEstimatedDuration(quiz.questions || []) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Actions principales -->
+              <div class="module-quiz-actions">
+                <button class="btn btn-edit-module" 
+                        (click)="openEditQuizModal(createQuizModal, quiz.id, formation.id!)"
+                        title="Modifier ce quiz">
+                  <i class="bi bi-pencil-square me-1"></i>
+                  Modifier
+                </button>
+                <button class="btn btn-delete-module ms-2" 
+                        (click)="deleteQuiz(quiz.id, formation.id!)"
+                        title="Supprimer ce quiz">
+                  <i class="bi bi-trash-fill me-1"></i>
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description du quiz -->
+          <div *ngIf="quiz.description" class="module-quiz-description">
+            <div class="description-content">
+              <i class="bi bi-info-circle-fill me-2 text-info"></i>
+              <span>{{ quiz.description }}</span>
+            </div>
+          </div>
+
+          <!-- Section des questions (collapsible) -->
+          <div class="module-questions-section" *ngIf="quiz.questions && quiz.questions.length > 0">
+            
+            <!-- Toggle pour voir les questions -->
+            <div class="questions-toggle-wrapper">
+              <button class="btn-toggle-questions" 
+                      type="button"
+                      [attr.data-bs-toggle]="'collapse'"
+                      [attr.data-bs-target]="'#moduleQuestions_' + formation.id + '_' + quiz.id"
+                      [attr.aria-expanded]="false">
+                <i class="bi bi-chevron-down me-2 toggle-icon"></i>
+                <span class="toggle-text">Afficher les {{ quiz.questions.length }} question(s) en détail</span>
+              </button>
+            </div>
+
+            <!-- Contenu collapsible des questions -->
+            <div class="collapse" [attr.id]="'moduleQuestions_' + formation.id + '_' + quiz.id">
+              <div class="questions-detail-container">
+                
+                <div *ngFor="let question of quiz.questions; let qIndex = index" 
+                     class="question-detail-card">
+                  
+                  <!-- En-tête de la question -->
+                  <div class="question-detail-header">
+                    <div class="question-number-badge">
+                      Question {{ qIndex + 1 }}
+                    </div>
+                    <div class="question-points-badge">
+                      {{ question.points || 1 }} point(s)
+                    </div>
+                  </div>
+
+                  <!-- Texte de la question -->
+                  <div class="question-text-detail">
+                    {{ question.text }}
+                  </div>
+
+                  <!-- Options de réponse -->
+                  <div class="answer-options-detail" *ngIf="question.options && question.options.length > 0">
+                    <div class="options-header-detail">
+                      <i class="bi bi-list-check me-2"></i>
+                      <span>Réponses proposées :</span>
+                    </div>
+                    
+                    <div class="options-list-detail">
+                      <div *ngFor="let option of question.options; let optIndex = index"
+                           class="option-detail-item"
+                           [ngClass]="{
+                             'option-correct': option.correct,
+                             'option-incorrect': !option.correct
+                           }">
+                        
+                        <div class="option-indicator-detail">
+                          <i *ngIf="option.correct" 
+                             class="bi bi-check-circle-fill text-success"
+                             title="Réponse correcte"></i>
+                          <i *ngIf="!option.correct" 
+                             class="bi bi-x-circle text-muted"
+                             title="Réponse incorrecte"></i>
+                        </div>
+                        
+                        <div class="option-letter-detail">
+                          {{ getOptionLetter(optIndex) }}.
+                        </div>
+                        
+                        <div class="option-text-detail">
+                          {{ option.text }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Message si pas d'options -->
+                  <div *ngIf="!question.options || question.options.length === 0" 
+                       class="no-options-alert">
+                    <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+                    Cette question n'a aucune option de réponse définie
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message si pas de questions -->
+          <div *ngIf="!quiz.questions || quiz.questions.length === 0" 
+               class="no-questions-alert">
+            <i class="bi bi-exclamation-circle text-warning me-2"></i>
+            Ce quiz ne contient aucune question
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Chapitres avec Accordion -->
+    <div class="chapitres-accordion-section">
+      <div class="accordion" [id]="'accordionChapitres' + formationIndex">
+
+        <!-- Header de l'accordion -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" [id]="'headingChapitres' + formationIndex">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              [attr.data-bs-target]="'#collapseChapitres' + formationIndex" [attr.aria-expanded]="false"
+              [attr.aria-controls]="'collapseChapitres' + formationIndex">
+              <div class="accordion-header-content">
+                <i class="bi bi-journal-bookmark me-2"></i>
+                <span class="fw-bold">Chapitres ({{ formation.chapitres?.length || 0 }})</span>
+                <span class="ms-3 text-muted">
+                  {{ getTotalChapterQuizzes(formation) }} quiz de chapitres au total
+                </span>
+              </div>
+            </button>
+          </h2>
+
+          <div [id]="'collapseChapitres' + formationIndex" class="accordion-collapse collapse"
+            [attr.aria-labelledby]="'headingChapitres' + formationIndex"
+            [attr.data-bs-parent]="'#accordionChapitres' + formationIndex">
+            <div class="accordion-body">
+
+              <!-- Contenu des chapitres -->
+              <div *ngIf="formation.chapitres && formation.chapitres.length > 0; else noChapitres">
+
+                <!-- Accordion pour chaque chapitre -->
+                <div class="accordion" [id]="'accordionChapitresList' + formationIndex">
+                  <div *ngFor="let chapitre of formation.chapitres; let chapitreIndex = index"
+                    class="accordion-item chapitre-accordion-item">
+
+                    <!-- Header du chapitre -->
+                    <h3 class="accordion-header" [id]="'headingChapitre' + formationIndex + '_' + chapitreIndex">
+                      <button class="accordion-button collapsed chapitre-accordion-button" type="button"
+                        data-bs-toggle="collapse"
+                        [attr.data-bs-target]="'#collapseChapitre' + formationIndex + '_' + chapitreIndex"
+                        [attr.aria-expanded]="false"
+                        [attr.aria-controls]="'collapseChapitre' + formationIndex + '_' + chapitreIndex">
+
+                        <div class="chapitre-header-content">
+                          <div class="chapitre-main-info">
+                            <i class="bi bi-bookmark-fill text-primary me-2"></i>
+                            <span class="chapitre-title-accordion">{{ chapitre.titre }}</span>
+                          </div>
+
+                          <div class="chapitre-badges">
+                            <!-- Badge quiz existants -->
+                            <span *ngIf="hasChapterQuizzes(chapitre.id!)" class="badge bg-success me-2">
+                              <i class="bi bi-check-circle me-1"></i>
+                              {{ getQuizzesForChapitre(chapitre.id!).length }} quiz
+                            </span>
+                            <span *ngIf="!hasChapterQuizzes(chapitre.id!)" class="badge bg-warning me-2">
+                              <i class="bi bi-exclamation-triangle me-1"></i>
+                              Aucun quiz
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    </h3>
+
+                    <!-- Contenu du chapitre -->
+                    <div [id]="'collapseChapitre' + formationIndex + '_' + chapitreIndex"
+                      class="accordion-collapse collapse"
+                      [attr.aria-labelledby]="'headingChapitre' + formationIndex + '_' + chapitreIndex"
+                      [attr.data-bs-parent]="'#accordionChapitresList' + formationIndex">
+                      <div class="accordion-body chapitre-accordion-body">
+
+                        <!-- Actions du chapitre -->
+                        <div class="chapitre-actions-section">
+                          <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">
+                              <i class="bi bi-gear me-2"></i>
+                              Actions pour ce chapitre
+                            </h6>
+                            <button class="btn btn-add-quiz-chapter"
+                              (click)="openCreateChapterQuizModal(createQuizModal, chapitre.id!, formation.id!)">
+                              <i class="bi bi-plus-square me-1"></i>
+                              Nouveau Quiz
+                            </button>
+                          </div>
+                        </div>
+
+                        <!-- Liste des quiz du chapitre -->
+                        <div *ngIf="hasChapterQuizzes(chapitre.id!)" class="chapter-quiz-list">
+                          <h6 class="quiz-list-title">
+                            <i class="bi bi-list-check me-2"></i>
+                            Quiz de ce chapitre
+                          </h6>
+
+                          <div class="quiz-cards-container">
+                            <div *ngFor="let quiz of getQuizzesForChapitre(chapitre.id!); let quizIndex = index"
+                              class="chapter-quiz-card">
+
+                              <!-- En-tête du quiz -->
+                              <div class="quiz-card-header">
+                                <div class="quiz-info">
+                                  <span class="quiz-number">#{{ quiz.id }}</span>
+                                  <div class="quiz-title-section">
+                                    <span class="quiz-title-card">{{ quiz.title }}</span>
+                                    <div class="quiz-summary-stats" *ngIf="quiz.questions">
+                                      {{ quiz.questions.length }} question(s) • {{ getTotalPoints(quiz.questions) }}
+                                      points
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="quiz-badges">
+                                  <span class="questions-count">
+                                    <i class="bi bi-question-circle me-1"></i>
+                                    {{ (quiz.questions && quiz.questions.length) || 0 }}
+                                  </span>
+                                  <span class="total-points">
+                                    <i class="bi bi-star-fill me-1"></i>
+                                    {{ getTotalPoints(quiz.questions || []) }}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <!-- Description du quiz -->
+                              <div *ngIf="quiz.description" class="quiz-description-card">
+                                <i class="bi bi-info-circle me-1"></i>
+                                <span>{{ quiz.description }}</span>
+                              </div>
+
+                              <!-- Détails des questions (collapsible) -->
+                              <div class="quiz-details-section" *ngIf="quiz.questions && quiz.questions.length > 0">
+
+                                <div class="quiz-details-toggle">
+                                  <button class="btn btn-link btn-sm p-0 text-decoration-none" type="button"
+                                    [attr.data-bs-toggle]="'collapse'"
+                                    [attr.data-bs-target]="'#quizDetails_' + chapitre.id + '_' + quiz.id"
+                                    [attr.aria-expanded]="false">
+                                    <i class="bi bi-chevron-down me-1"></i>
+                                    Voir les {{ quiz.questions.length }} question(s) en détail
+                                  </button>
+                                </div>
+
+                                <div class="collapse" [attr.id]="'quizDetails_' + chapitre.id + '_' + quiz.id">
+                                  <div class="quiz-questions-preview">
+                                    <div class="questions-list">
+                                      <div *ngFor="let question of quiz.questions; let qIndex = index"
+                                        class="question-item">
+
+                                        <!-- En-tête de la question -->
+                                        <div class="question-header">
+                                          <div class="question-meta">
+                                            <span class="question-number">Q{{ qIndex + 1 }}</span>
+                                            <span class="question-points">{{ question.points || 1 }} pts</span>
+                                          </div>
+                                        </div>
+
+                                        <!-- Texte de la question -->
+                                        <div class="question-text">
+                                          {{ question.text }}
+                                        </div>
+
+                                        <!-- Options de réponse -->
+                                        <div class="answer-options"
+                                          *ngIf="question.options && question.options.length > 0">
+                                          <div class="options-header">
+                                            <span class="options-label">
+                                              Réponses :
+                                            </span>
+                                          </div>
+                                          <div class="options-list">
+                                            <div *ngFor="let option of question.options; let optIndex = index"
+                                              class="answer-option" [ngClass]="{
+                                                   'correct-answer': option.correct,
+                                                   'incorrect-answer': !option.correct
+                                                 }">
+                                              <div class="option-indicator">
+                                                <i *ngIf="option.correct" class="bi bi-check-circle-fill text-success"
+                                                  title="Réponse correcte"></i>
+                                                <i *ngIf="!option.correct" class="bi bi-x-circle text-muted"
+                                                  title="Réponse incorrecte"></i>
+                                              </div>
+                                              <span class="option-letter">{{ getOptionLetter(optIndex) }}</span>
+                                              <span class="option-text">{{ option.text }}</span>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <!-- Message si pas d'options -->
+                                        <div *ngIf="!question.options || question.options.length === 0"
+                                          class="no-options-message">
+                                          <i class="bi bi-exclamation-triangle text-warning me-1"></i>
+                                          Cette question n'a aucune option de réponse définie
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <!-- Message si pas de questions -->
+                              <div *ngIf="!quiz.questions || quiz.questions.length === 0" class="no-questions-message">
+                                <i class="bi bi-exclamation-circle text-warning me-2"></i>
+                                Ce quiz ne contient aucune question
+                              </div>
+
+                              <!-- Actions du quiz -->
+                              <div class="quiz-card-actions">
+                                <button class="btn btn-edit-chapter-quiz me-2"
+                                  (click)="openEditChapterQuizModal(createQuizModal, quiz.id, chapitre.id!, formation.id!)"
+                                  title="Modifier ce quiz">
+                                  <i class="bi bi-pencil me-1"></i>
+                                  Modifier
+                                </button>
+                                <button class="btn btn-delete-chapter-quiz"
+                                  (click)="deleteChapterQuiz(quiz.id, chapitre.id!)" title="Supprimer ce quiz">
+                                  <i class="bi bi-trash me-1"></i>
+                                  Supprimer
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Message si pas de quiz de chapitre -->
+                        <div *ngIf="!hasChapterQuizzes(chapitre.id!)" class="empty-chapter-quiz-state">
+                          <div class="text-center py-3">
+                            <i class="bi bi-question-circle display-6 text-muted mb-2"></i>
+                            <p class="text-muted mb-1">Aucun quiz créé pour ce chapitre</p>
+                            <small class="text-muted">
+                              Cliquez sur "Nouveau Quiz" pour créer le premier quiz de ce chapitre
+                            </small>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ng-template #noChapitres>
+                <div class="empty-chapitre-state">
+                  <i class="bi bi-journal-x display-6 text-muted"></i>
+                  <p class="text-muted mt-2 mb-0">Aucun chapitre disponible pour cette formation</p>
+                </div>
+              </ng-template>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal pour créer/éditer quiz -->
+<ng-template #createQuizModal let-modal>
+  <div class="modal-header bg-dark">
+    <h5 class="modal-title text-white">
+      {{ currentQuiz ? 'Modifier le Quiz' : 'Créer un Quiz' }}
+      <span *ngIf="selectedFormation" class="ms-2 badge bg-info">{{ selectedFormation.titre }}</span>
+      <span *ngIf="isChapterQuiz && selectedChapitre" class="ms-2 badge bg-warning">
+        <i class="bi bi-bookmark me-1"></i>{{ selectedChapitre.titre }}
+      </span>
+      <span *ngIf="!isChapterQuiz" class="ms-2 badge bg-success">
+        <i class="bi bi-book me-1"></i>Quiz Module
+      </span>
+    </h5>
+    <button type="button" class="btn btn-sm btn-light mb-0 ms-auto" (click)="closeModal()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <form [formGroup]="quizForm" class="row g-3">
+      <!-- Quiz Title -->
+      <div class="col-12">
+        <label class="form-label">Titre du Quiz *</label>
+        <input class="form-control" [class.is-invalid]="isFieldInvalid(quizForm, 'title')" type="text"
+          formControlName="title" placeholder="Entrez le titre du quiz" />
+        <div *ngIf="isFieldInvalid(quizForm, 'title')" class="invalid-feedback">
+          {{ getFieldError(quizForm, 'title') }}
+        </div>
+      </div>
+
+      <!-- Quiz Description -->
+      <div class="col-12">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" formControlName="description" rows="3"
+          placeholder="Description optionnelle du quiz"></textarea>
+      </div>
+
+      <!-- Questions Section -->
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="mb-0">Questions ({{ questionsArray.length }})</h6>
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="openCreateQuestionModal(questionModal)">
+            <i class="bi bi-plus me-1"></i>Ajouter une question
+          </button>
+        </div>
+
+        <!-- Questions List -->
+        <div *ngIf="questionsArray.length === 0" class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          Aucune question ajoutée. Cliquez sur "Ajouter une question" pour commencer.
+        </div>
+
+        <div *ngFor="let question of questionsArray.controls; let qIndex = index" class="card mb-3"
+          [formGroup]="asFormGroup(question)">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="card-title mb-0">
+                {{ qIndex + 1 }}. {{ asFormGroup(question).value.text }}
+              </h6>
+              <div class="d-flex gap-2">
+                <span class="badge bg-info">{{ asFormGroup(question).value.points }} pt(s)</span>
+                <button type="button" class="btn btn-sm btn-outline-success"
+                  (click)="openEditQuestionModal(questionModal, qIndex)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeQuestion(qIndex)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeModal()">
+      Annuler
+    </button>
+    <button type="button" class="btn btn-primary" [disabled]="saving || !quizForm.valid || questionsArray.length === 0"
+      (click)="saveQuiz()">
+      <span *ngIf="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+      {{ currentQuiz ? 'Modifier' : 'Créer' }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Question Modal -->
+<ng-template #questionModal let-modal>
+  <div class="modal-header bg-primary">
+    <h5 class="modal-title text-white">
+      {{ currentQuestionIndex >= 0 ? 'Modifier la Question' : 'Ajouter une Question' }}
+    </h5>
+    <button type="button" class="btn btn-sm btn-light mb-0 ms-auto" (click)="closeModal()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <form [formGroup]="questionForm" class="row g-3">
+      <!-- Question Text -->
+      <div class="col-12">
+        <label class="form-label">Question *</label>
+        <textarea class="form-control" [class.is-invalid]="isFieldInvalid(questionForm, 'text')" formControlName="text"
+          rows="3" placeholder="Entrez votre question"></textarea>
+        <div *ngIf="isFieldInvalid(questionForm, 'text')" class="invalid-feedback">
+          {{ getFieldError(questionForm, 'text') }}
+        </div>
+      </div>
+
+      <!-- Points -->
+      <div class="col-12">
+        <label class="form-label">Points *</label>
+        <input class="form-control" [class.is-invalid]="isFieldInvalid(questionForm, 'points')" type="number"
+          formControlName="points" min="1" placeholder="Nombre de points" />
+        <div *ngIf="isFieldInvalid(questionForm, 'points')" class="invalid-feedback">
+          {{ getFieldError(questionForm, 'points') }}
+        </div>
+      </div>
+
+      <!-- Answer Options -->
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <label class="form-label mb-0">Réponses *</label>
+          <div>
+            <button type="button" class="btn btn-sm btn-outline-success me-2"
+              [disabled]="answerOptionsArray.length >= 6" (click)="addAnswerOption()">
+              <i class="bi bi-plus"></i>
+            </button>
+            <small class="text-muted">Cochez la/les bonne(s) réponse(s)</small>
+          </div>
+        </div>
+
+        <div formArrayName="answerOptions">
+          <div *ngFor="let option of answerOptionsArray.controls; let optIndex = index" [formGroupName]="optIndex"
+            class="input-group mb-2">
+            <div class="input-group-text">
+              <input type="checkbox" formControlName="correct" (change)="onCorrectAnswerChange(optIndex)"
+                class="form-check-input mt-0">
+            </div>
+            <input type="text" class="form-control" formControlName="text" [placeholder]="'Option ' + (optIndex + 1)">
+            <button type="button" class="btn btn-outline-danger" [disabled]="answerOptionsArray.length <= 2"
+              (click)="removeAnswerOption(optIndex)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <small class="text-info">
+          <i class="bi bi-info-circle me-1"></i>
+          Minimum 2 options, maximum 6. Au moins une réponse correcte requise.
+        </small>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeModal()">
+      Annuler
+    </button>
+    <button type="button" class="btn btn-primary" [disabled]="!questionForm.valid"
+      (click)="currentQuestionIndex >= 0 ? updateQuestion(currentQuestionIndex) : addQuestion()">
+      {{ currentQuestionIndex >= 0 ? 'Modifier' : 'Ajouter' }}
+    </button>
+  </div>
+</ng-template>

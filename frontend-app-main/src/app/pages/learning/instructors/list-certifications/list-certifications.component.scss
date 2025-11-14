@@ -1,0 +1,587 @@
+// ============================================
+// Certifications Component Styles
+// ============================================
+
+// Variables
+$primary-color: #405189;
+$success-color: #28a745;
+$warning-color: #ffc107;
+$danger-color: #dc3545;
+$info-color: #17a2b8;
+$muted-color: #6c757d;
+$light-bg: #f8f9fa;
+$border-color: #e9ecef;
+$shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+$shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+$transition: all 0.3s ease;
+
+// ============================================
+// Page Layout
+// ============================================
+.page-content {
+  padding: 1.5rem;
+  min-height: 100vh;
+  background-color: #f3f6f9;
+}
+
+.container-fluid {
+  max-width: 100%;
+}
+
+// ============================================
+// Page Title
+// ============================================
+.page-title-box {
+  margin-bottom: 1.5rem;
+  padding: 1rem 0;
+
+  h4 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    display: flex;
+    align-items: center;
+
+    i {
+      font-size: 1.75rem;
+    }
+  }
+
+  .page-title-right {
+    display: flex;
+    gap: 0.5rem;
+
+    .btn {
+      transition: $transition;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: $shadow-md;
+      }
+    }
+  }
+}
+
+// ============================================
+// Statistics Cards
+// ============================================
+.card-animate {
+  transition: $transition;
+  border: 1px solid $border-color;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: $shadow-md;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+
+    .text-uppercase {
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .fs-22 {
+      font-size: 1.75rem !important;
+      font-weight: 700;
+    }
+
+    .fs-2 {
+      opacity: 0.2;
+    }
+  }
+}
+
+// Icon colors in statistics
+.text-warning {
+  color: $warning-color !important;
+}
+
+.text-primary {
+  color: $primary-color !important;
+}
+
+.text-success {
+  color: $success-color !important;
+}
+
+.text-info {
+  color: $info-color !important;
+}
+
+// ============================================
+// Filters Card
+// ============================================
+.card {
+  border: 1px solid $border-color;
+  border-radius: 0.5rem;
+  box-shadow: $shadow-sm;
+  margin-bottom: 1.5rem;
+  background: white;
+
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+.input-group {
+  .input-group-text {
+    background-color: white;
+    border-right: none;
+    color: $muted-color;
+  }
+
+  .form-control {
+    border-left: none;
+    
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: none;
+    }
+  }
+}
+
+.form-select {
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    border-color: $primary-color;
+  }
+
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 0.2rem rgba(64, 81, 137, 0.25);
+  }
+}
+
+// ============================================
+// Table Styles
+// ============================================
+.table-responsive {
+  border-radius: 0.5rem;
+  overflow: hidden;
+
+  .table {
+    margin-bottom: 0;
+
+    thead {
+      background-color: $light-bg;
+      border-bottom: 2px solid $border-color;
+
+      th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: #495057;
+        padding: 1rem;
+        border-bottom: none;
+      }
+    }
+
+    tbody {
+      tr {
+        transition: $transition;
+
+        &:hover {
+          background-color: rgba(64, 81, 137, 0.05);
+          cursor: pointer;
+        }
+
+        td {
+          padding: 1rem;
+          vertical-align: middle;
+          border-bottom: 1px solid $border-color;
+        }
+      }
+    }
+  }
+}
+
+// Avatar in table
+.avatar-sm {
+  width: 2.5rem;
+  height: 2.5rem;
+
+  .avatar-title {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}
+
+.bg-primary-subtle {
+  background-color: rgba(64, 81, 137, 0.1) !important;
+}
+
+// Score badges
+.badge {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+
+  &.fs-6 {
+    font-size: 1rem !important;
+  }
+
+  &.bg-success {
+    background-color: $success-color !important;
+  }
+
+  &.bg-warning {
+    background-color: $warning-color !important;
+    color: #000;
+  }
+
+  &.bg-danger {
+    background-color: $danger-color !important;
+  }
+
+  &.bg-secondary {
+    background-color: $muted-color !important;
+  }
+}
+
+// ============================================
+// Action Buttons
+// ============================================
+.btn-group {
+  gap: 0.25rem;
+
+  .btn {
+    padding: 0.375rem 0.75rem;
+    transition: $transition;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    i {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+.btn-outline-primary {
+  color: $primary-color;
+  border-color: $primary-color;
+
+  &:hover {
+    background-color: $primary-color;
+    color: white;
+  }
+}
+
+.btn-outline-success {
+  color: $success-color;
+  border-color: $success-color;
+
+  &:hover {
+    background-color: $success-color;
+    color: white;
+  }
+}
+
+.btn-outline-info {
+  color: $info-color;
+  border-color: $info-color;
+
+  &:hover {
+    background-color: $info-color;
+    color: white;
+  }
+}
+
+.btn-outline-secondary {
+  color: $muted-color;
+  border-color: $muted-color;
+
+  &:hover {
+    background-color: $muted-color;
+    color: white;
+  }
+}
+
+// ============================================
+// Pagination
+// ============================================
+.pagination {
+  margin-top: 1.5rem;
+
+  .page-item {
+    margin: 0 0.25rem;
+
+    .page-link {
+      border-radius: 0.375rem;
+      color: $primary-color;
+      border: 1px solid $border-color;
+      padding: 0.5rem 0.75rem;
+      transition: $transition;
+
+      &:hover {
+        background-color: $primary-color;
+        color: white;
+        border-color: $primary-color;
+      }
+    }
+
+    &.active .page-link {
+      background-color: $primary-color;
+      border-color: $primary-color;
+      color: white;
+    }
+
+    &.disabled .page-link {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ============================================
+// Loading & Error States
+// ============================================
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+.alert {
+  border-radius: 0.5rem;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+
+  i {
+    margin-right: 0.5rem;
+  }
+}
+
+.alert-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+  border-color: rgba(220, 53, 69, 0.2);
+  color: $danger-color;
+}
+
+// ============================================
+// Empty State
+// ============================================
+.text-center {
+  .fa-3x {
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+
+  h5 {
+    margin-top: 1rem;
+    color: $muted-color;
+  }
+
+  p {
+    color: $muted-color;
+    margin-bottom: 1rem;
+  }
+}
+
+// ============================================
+// Responsive Design
+// ============================================
+@media (max-width: 1199.98px) {
+  .page-title-box {
+    flex-direction: column;
+    align-items: flex-start !important;
+
+    .page-title-right {
+      margin-top: 1rem;
+      width: 100%;
+
+      .btn {
+        flex: 1;
+      }
+    }
+  }
+}
+
+@media (max-width: 991.98px) {
+  .card-animate {
+    margin-bottom: 1rem;
+  }
+
+  .table-responsive {
+    font-size: 0.875rem;
+
+    .avatar-sm {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+}
+
+@media (max-width: 767.98px) {
+  .page-content {
+    padding: 1rem;
+  }
+
+  .page-title-box h4 {
+    font-size: 1.25rem;
+
+    i {
+      font-size: 1.5rem;
+    }
+  }
+
+  .btn-group {
+    flex-direction: column;
+
+    .btn {
+      width: 100%;
+      margin-bottom: 0.25rem;
+    }
+  }
+
+  .table {
+    font-size: 0.75rem;
+
+    thead th,
+    tbody td {
+      padding: 0.5rem;
+    }
+  }
+
+  .stats-card {
+    .fs-22 {
+      font-size: 1.5rem !important;
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .col-12 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+
+    .page-item {
+      margin: 0.125rem;
+
+      .page-link {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.875rem;
+      }
+    }
+  }
+}
+
+// ============================================
+// Custom Scrollbar
+// ============================================
+.table-responsive {
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $light-bg;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $muted-color;
+    border-radius: 10px;
+
+    &:hover {
+      background: darken($muted-color, 10%);
+    }
+  }
+}
+
+// ============================================
+// Animations
+// ============================================
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card,
+.table tbody tr {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+// ============================================
+// Print Styles
+// ============================================
+@media print {
+  .page-title-right,
+  .btn-group,
+  .pagination {
+    display: none !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+  }
+
+  .table {
+    font-size: 10pt;
+  }
+}
+
+// ============================================
+// Utility Classes
+// ============================================
+.text-muted {
+  color: $muted-color !important;
+}
+
+.fw-medium {
+  font-weight: 500 !important;
+}
+
+.fw-semibold {
+  font-weight: 600 !important;
+}
+
+.rounded {
+  border-radius: 0.375rem !important;
+}
+
+.rounded-circle {
+  border-radius: 50% !important;
+}
+
+// Module image styling
+img[alt="Module"] {
+  border: 1px solid $border-color;
+  transition: $transition;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: $shadow-sm;
+  }
+}
+
+// Results count styling
+.mt-3 small {
+  font-size: 0.875rem;
+  padding: 0.5rem 0;
+  display: inline-block;
+}
+

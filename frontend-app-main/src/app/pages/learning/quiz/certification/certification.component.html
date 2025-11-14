@@ -1,0 +1,404 @@
+<!-- certification.component.html -->
+<div class="page-content">
+  <div class="container-fluid">
+
+    <!-- Page Title -->
+    <div class="row">
+      <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+          <h4 class="mb-sm-0">Mes Certifications</h4>
+          <div class="page-title-right">
+            <button class="btn btn-sm btn-outline-primary me-2" (click)="refreshData()">
+              <i class="fas fa-sync-alt me-1"></i>Actualiser
+            </button>
+            <button class="btn btn-sm btn-primary" (click)="exportResults()">
+              <i class="fas fa-download me-1"></i>Exporter
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      Une erreur s'est produite lors du chargement des données.
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!loading && !error">
+
+      <!-- Statistics Cards -->
+      <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+          <div class="card card-animate">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <p class="text-uppercase fw-medium text-muted mb-0">Certifications</p>
+                </div>
+                <div class="flex-shrink-0">
+                  <i class="fas fa-certificate text-warning fs-2"></i>
+                </div>
+              </div>
+              <div class="d-flex align-items-end justify-content-between mt-3">
+                <div>
+                  <h4 class="fs-22 fw-semibold ff-secondary mb-0">
+                    {{ stats.totalCertifications }}
+                  </h4>
+                  <p class="text-muted mb-0">Obtenues</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="card card-animate">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <p class="text-uppercase fw-medium text-muted mb-0">Modules</p>
+                </div>
+                <div class="flex-shrink-0">
+                  <i class="fas fa-book text-primary fs-2"></i>
+                </div>
+              </div>
+              <div class="d-flex align-items-end justify-content-between mt-3">
+                <div>
+                  <h4 class="fs-22 fw-semibold ff-secondary mb-0">
+                    {{ stats.totalModules }}
+                  </h4>
+                  <p class="text-muted mb-0">Disponibles</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="card card-animate">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <p class="text-uppercase fw-medium text-muted mb-0">Score Moyen</p>
+                </div>
+                <div class="flex-shrink-0">
+                  <i class="fas fa-chart-line text-success fs-2"></i>
+                </div>
+              </div>
+              <div class="d-flex align-items-end justify-content-between mt-3">
+                <div>
+                  <h4 class="fs-22 fw-semibold ff-secondary mb-0">
+                    {{ stats.averageScore }}%
+                  </h4>
+                  <p class="text-muted mb-0">Moyenne</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="card card-animate">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <p class="text-uppercase fw-medium text-muted mb-0">Meilleur Score</p>
+                </div>
+                <div class="flex-shrink-0">
+                  <i class="fas fa-trophy text-warning fs-2"></i>
+                </div>
+              </div>
+              <div class="d-flex align-items-end justify-content-between mt-3">
+                <div>
+                  <h4 class="fs-22 fw-semibold ff-secondary mb-0">
+                    {{ stats.highestScore }}%
+                  </h4>
+                  <p class="text-muted mb-0">Record</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Card -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="card-title mb-0">Progression Globale</h5>
+                <span class="badge bg-primary fs-6">{{ getProgressPercentage() }}%</span>
+              </div>
+              <div class="progress" style="height: 25px;">
+                <div class="progress-bar bg-success" role="progressbar" 
+                     [style.width.%]="getProgressPercentage()"
+                     [attr.aria-valuenow]="getProgressPercentage()"
+                     aria-valuemin="0" aria-valuemax="100">
+                  {{ certifications.length }} / {{ modules.length }} modules certifiés
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certifications Section -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5 class="card-title mb-0">
+                  <i class="fas fa-certificate text-warning me-2"></i>
+                  Mes Certifications
+                </h5>
+                <span class="badge bg-warning">{{ certifications.length }}</span>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Search and Filter Bar -->
+              <div class="row mb-4">
+                <div class="col-md-8">
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" 
+                           class="form-control" 
+                           placeholder="Rechercher une certification ou un module..."
+                           [(ngModel)]="searchTerm">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <select class="form-select" [(ngModel)]="sortBy">
+                    <option value="date">Trier par date</option>
+                    <option value="score">Trier par score</option>
+                    <option value="name">Trier par nom</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div *ngIf="filteredCertifications.length === 0" 
+                   class="text-center py-5">
+                <i class="fas fa-certificate fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Aucune certification trouvée</h5>
+                <p class="text-muted">
+                  <ng-container *ngIf="searchTerm">
+                    Aucun résultat pour "{{ searchTerm }}"
+                  </ng-container>
+                  <ng-container *ngIf="!searchTerm">
+                    Réussissez des examens pour obtenir vos certifications
+                  </ng-container>
+                </p>
+              </div>
+
+              <!-- Certifications Grid -->
+              <div class="row" *ngIf="filteredCertifications.length > 0">
+                <div class="col-xl-4 col-md-6 mb-4" 
+                     *ngFor="let certification of filteredCertifications">
+                  <div class="card certification-card h-100">
+                    <div class="card-body d-flex flex-column">
+                      <!-- Certificate Icon -->
+                      <div class="text-center mb-3">
+                        <i class="fas fa-certificate text-warning" style="font-size: 3rem;"></i>
+                      </div>
+                      
+                      <!-- Title -->
+                      <h5 class="card-title text-center mb-3">{{ certification.titre }}</h5>
+                      
+                      <!-- Details -->
+                      <div class="certification-details flex-grow-1">
+                        <div class="d-flex justify-content-between mb-2">
+                          <span class="text-muted">
+                            <i class="fas fa-chart-bar me-1"></i>Score:
+                          </span>
+                          <span class="fw-bold" [class]="getScoreClass(certification.score!)">
+                            {{ certification.score }}%
+                          </span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                          <span class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>Date:
+                          </span>
+                          <span>{{ formatDate(certification.dateObtention!) }}</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                          <span class="text-muted">
+                            <i class="fas fa-book me-1"></i>Module:
+                          </span>
+                          <span class="text-truncate ms-2" style="max-width: 60%;">
+                            {{ getModuleName(certification.moduleId) }}
+                          </span>
+                        </div>
+
+                        <!-- Module Image -->
+                        <div class="text-center mb-3">
+                          <img [src]="getModuleImage(certification.moduleId)" 
+                               alt="Module" 
+                               class="rounded img-fluid"
+                               style="max-height: 120px; object-fit: cover;">
+                        </div>
+                      </div>
+
+                      <!-- Actions -->
+                      <div class="d-grid gap-2 mt-auto">
+                        <button class="btn btn-outline-warning btn-sm"
+                                (click)="viewCertification(certification)">
+                          <i class="fas fa-eye me-1"></i>Voir le Certificat
+                        </button>
+                        <div class="btn-group">
+                          <button class="btn btn-warning btn-sm"
+                                  (click)="downloadCertification(certification)">
+                            <i class="fas fa-download me-1"></i>Télécharger
+                          </button>
+                          <button class="btn btn-outline-warning btn-sm"
+                                  (click)="shareCertification(certification)">
+                            <i class="fas fa-share-alt me-1"></i>Partager
+                          </button>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm"
+                                (click)="viewModuleDetails(certification.moduleId)">
+                          <i class="fas fa-book-open me-1"></i>Voir le Module
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Certification Modal -->
+<div class="modal fade" [class.show]="showCertificationModal" 
+     [style.display]="showCertificationModal ? 'block' : 'none'"
+     tabindex="-1" aria-labelledby="certificationModalLabel" 
+     [attr.aria-hidden]="!showCertificationModal">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="certificationModalLabel">
+          <i class="fas fa-certificate text-warning me-2"></i>
+          Certificat de Réussite
+        </h5>
+        <button type="button" class="btn-close" 
+                (click)="closeCertificationModal()"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedCertification">
+        <div class="certificate-container mx-auto" style="max-width: 800px;">
+          <div class="certificate-border p-5">
+            <!-- Header -->
+            <div class="text-center mb-4">
+              <i class="fas fa-award text-warning" style="font-size: 4rem;"></i>
+              <h2 class="certificate-title mt-3">CERTIFICAT DE RÉUSSITE</h2>
+              <p class="text-muted">Ce certificat atteste que</p>
+            </div>
+
+            <!-- Recipient Name -->
+            <div class="text-center mb-4">
+              <h3 class="fw-bold text-primary" style="font-size: 2rem;">
+                {{ selectedCertification.titre }}
+              </h3>
+            </div>
+
+            <!-- Certification Text -->
+            <div class="text-center mb-4">
+              <p class="lead">
+                a complété avec succès la formation
+              </p>
+              <h4 class="fw-bold text-dark mb-3">
+                {{ getModuleName(selectedCertification.moduleId) }}
+              </h4>
+              <p>
+                avec un score de
+                <strong [class]="getScoreClass(selectedCertification.score!)">
+                  {{ selectedCertification.score }}%
+                </strong>
+              </p>
+            </div>
+
+            <!-- Details -->
+            <div class="row justify-content-center mb-4">
+              <div class="col-md-6">
+                <div class="cert-detail text-center">
+                  <strong>Date d'obtention</strong>
+                  <small class="d-block">
+                    {{ formatDate(selectedCertification.dateObtention!) }}
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="row justify-content-around mt-5 pt-4 border-top">
+              <div class="col-md-5 text-center">
+                <div class="signature-line mx-auto"></div>
+                <p class="mb-0 fw-bold">Responsable de Formation</p>
+                <small class="text-muted">Signature</small>
+              </div>
+              <div class="col-md-5 text-center">
+                <div class="qr-placeholder mx-auto d-flex align-items-center justify-content-center rounded"
+                     style="width: 80px; height: 80px;">
+                  <i class="fas fa-qrcode"></i>
+                </div>
+                <small class="text-muted d-block mt-2">Code de vérification</small>
+              </div>
+            </div>
+
+            <!-- Certificate ID -->
+            <div class="text-center mt-4">
+              <small class="text-muted">
+                ID: CERT-{{ selectedCertification.id }}-{{ selectedCertification.moduleId }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" 
+                (click)="closeCertificationModal()">
+          Fermer
+        </button>
+        <button type="button" class="btn btn-warning" 
+                (click)="downloadCertification(selectedCertification!)"
+                *ngIf="selectedCertification">
+          <i class="fas fa-download me-1"></i>
+          Télécharger
+        </button>
+        <button type="button" class="btn btn-primary" 
+                (click)="shareCertification(selectedCertification!)"
+                *ngIf="selectedCertification">
+          <i class="fas fa-share-alt me-1"></i>
+          Partager
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop fade" 
+     [class.show]="showCertificationModal"
+     *ngIf="showCertificationModal"
+     (click)="closeCertificationModal()"></div>
