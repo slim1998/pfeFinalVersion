@@ -183,9 +183,34 @@ public class ModuleServiceImpl implements ModuleService {
 //
 //    }
 
-    
+    @Override
+public String uploadModuleImage(MultipartFile file, Long moduleId) {
+    try {
+        Module module = moduleRepository.findById(moduleId)
+            .orElseThrow(() -> new RuntimeException("Module not found"));
+        
+        if (file == null || file.isEmpty()) {
+            throw new RuntimeException("No file provided");
+        }
+        
+        // Use your file storage service
+        String fileName = configFile.store(file);
+        
+        module.setImage(fileName);
+        moduleRepository.save(module);
+        
+        return fileName;
+    } catch (Exception e) {
+        throw new RuntimeException("Failed to upload image: " + e.getMessage());
+    }
+}
 
-
+// Add method to check file before operations
+public void validateFileExists(String filePath) {
+    if (filePath != null && !configFile.fileExists(filePath)) {
+        throw new FileNotFoundException("File not found: " + filePath);
+    }
+}
 
     @Override
     public void deleteModuleById(Long id) {
