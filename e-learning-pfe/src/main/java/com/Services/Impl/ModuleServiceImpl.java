@@ -242,7 +242,23 @@ public class ModuleServiceImpl implements ModuleService {
 
     }
 
-    
+    @Override
+    public ModuleDto uploadModuleImage(Long IdBlog, MultipartFile image) {
+
+        ResponseEntity<Module> moduleResponse = this.findbyId(IdBlog);
+        String imageName=imageStorage.store(image);
+
+        String fileImageDownloadUrl= ServletUriComponentsBuilder.fromCurrentContextPath().path("api/v1/module/downloadmoduleimage/").path(imageName).toUriString();
+
+        Module module = moduleResponse.getBody();
+
+        if (module!=null)
+            module.setImage(fileImageDownloadUrl);
+
+        Module modulesaved = moduleRepository.save(module);
+        new ModuleDto();
+        return  ModuleDto.toDto(modulesaved);
+    }
     @Override
     public ModuleDto uploadModuleVideo(Long idModule, MultipartFile video) {
         ResponseEntity<Module> moduleResponse = this.findbyId(idModule);
