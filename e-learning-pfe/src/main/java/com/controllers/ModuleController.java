@@ -21,9 +21,12 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
 @RestController
 @RequestMapping("/api/v1/module")
 @RequiredArgsConstructor
@@ -33,19 +36,16 @@ public class ModuleController {
     private final ImageStorage imageStorage;
     private final DemandeAchatService demandeAchatService;
 
-
     @PostMapping("/addmodule")
     public ResponseEntity<ModuleDto> addModule(@RequestBody final ModuleDto moduleDto) {
         try {
             ModuleDto savedModule = moduleService.addModule(moduleDto);
             return new ResponseEntity<>(savedModule, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            // Affiche le vrai message de l'exception
             log.info("Erreur lors de la création du module : " + e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
 
     @GetMapping("/getmodulebyid/{id}")
     public ResponseEntity<ModuleDto> getModuleById(@PathVariable("id") final Long id) {
@@ -62,47 +62,48 @@ public class ModuleController {
         return new ResponseEntity<>(moduleService.getModules(), HttpStatus.OK);
     }
 
-
-//    @DeleteMapping("/delete/{id}")
-//    public ResponseEntity<Void> deleteModuleById(@PathVariable("id") final Long id) {
-//        try {
-//            moduleService.deleteModuleById(id);
-//            return new ResponseEntity<>(HttpStatus.OK);
-//        } catch (ModuleNotFoundException e) {
-//            log.info(String.format("module with id = %s not found", id));
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//    }
-@DeleteMapping("/delete/{id}")
-public ResponseEntity<Void> deleteModuleById(@PathVariable Long id) {
-    try {
-        moduleService.deleteModuleById(id);
-        return ResponseEntity.ok().build();
-    } catch (ModuleNotFoundException e) {
-        return ResponseEntity.notFound().build();
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Map<String, Object>> deleteModuleById(@PathVariable Long id) {
+        try {
+            moduleService.deleteModuleById(id);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Module deleted successfully");
+            response.put("id", id);
+            
+            return ResponseEntity.ok(response);
+        } catch (ModuleNotFoundException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Module not found");
+            errorResponse.put("id", id);
+            
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error deleting module: " + e.getMessage());
+            errorResponse.put("id", id);
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
-}
 
-
-    @PostMapping(path = "/uploadImage/{IdModule}" , consumes = MULTIPART_FORM_DATA_VALUE)
-    public ModuleDto uploadModuleImage(@PathVariable("IdModule")  Long IdModule,
-                                             @RequestPart(value = "image") MultipartFile image) {
+    @PostMapping(path = "/uploadImage/{IdModule}", consumes = MULTIPART_FORM_DATA_VALUE)
+    public ModuleDto uploadModuleImage(@PathVariable("IdModule") Long IdModule,
+                                       @RequestPart(value = "image") MultipartFile image) {
         return moduleService.uploadModuleImage(IdModule, image);
     }
 
     @GetMapping("/downloadmoduleimage/{imageName}")
     public ResponseEntity<Resource> downloadImage(@PathVariable String imageName, HttpServletRequest request) {
         try {
-            // Décoder l'URL correctement
             String decodedImageName = URLDecoder.decode(imageName, StandardCharsets.UTF_8);
-
-            // Log pour debug
             System.out.println("Nom d'image demandé: " + decodedImageName);
 
-            // Configuration du chemin d'images (adaptez selon votre configuration)
             Path imagePath = Paths.get("uploads/images/").resolve(decodedImageName).normalize();
 
-            // Vérifications de sécurité
             if (!imagePath.startsWith(Paths.get("uploads/images/"))) {
                 return ResponseEntity.badRequest().build();
             }
@@ -124,15 +125,12 @@ public ResponseEntity<Void> deleteModuleById(@PathVariable Long id) {
         }
     }
 
-
-    @PostMapping(path ="/uploadvideo/{IdModule}" , consumes = MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/uploadvideo/{IdModule}", consumes = MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ModuleDto> uploadVideo(
-            @PathVariable ("IdModule") Long IdModule,
+            @PathVariable("IdModule") Long IdModule,
             @RequestParam(value = "video") MultipartFile video) {
         return ResponseEntity.ok(moduleService.uploadModuleVideo(IdModule, video));
     }
-
-
 
     @GetMapping("/downloadmodulevideo/{videoName}")
     public ResponseEntity<Resource> downloadVideo(@PathVariable String videoName, HttpServletRequest request) {
@@ -149,7 +147,6 @@ public ResponseEntity<Void> deleteModuleById(@PathVariable Long id) {
         }
     }
 
-    
     @GetMapping("/getModuleByFormateur/{formateurId}")
     public List<ModuleDto> getModulesByFormateur(@PathVariable Long formateurId) {
         return moduleService.getModulesByFormateurId(formateurId);
@@ -160,14 +157,10 @@ public ResponseEntity<Void> deleteModuleById(@PathVariable Long id) {
         return moduleService.getModulesByCategorieId(categorieId);
     }
 
-
-
-
     @GetMapping("/countByFormateur/{formateurId}")
     public Long getNombreFormationsByFormateur(@PathVariable Long formateurId) {
         return moduleService.getNombreFormationsByFormateur(formateurId);
     }
-
 
     @GetMapping("/formationachetes/{apprenantId}")
     public ResponseEntity<List<ModuleDto>> getAcceptedModules(@PathVariable Long apprenantId) {
