@@ -50,7 +50,7 @@ public class SecurityConfig {
             "api/v1/apprenant/**",
             "api/v1/formateur/**",
             "api/v1/categorie/**",
-            "api/v1/module/**",
+            "/api/v1/module/**",
             "api/v1/chapitre/**",
             "api/v1/lesson/**",
             "/api/v1/module/downloadmoduleimage/**",
