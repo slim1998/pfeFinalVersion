@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,7 +17,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -46,18 +44,18 @@ public class SecurityConfig {
             "/api/v1/agent/**",
             "/api/v1/formation/**",
             "/api/v1/pack/**",
-            "api/v1/instructor/**",
-            "api/v1/apprenant/**",
-            "api/v1/formateur/**",
-            "api/v1/categorie/**",
-            "/api/v1/module/**",
-            "api/v1/chapitre/**",
-            "api/v1/lesson/**",
-            "/api/v1/module/downloadmoduleimage/**",
+            "/api/v1/instructor/**",
+            "/api/v1/apprenant/**",
+            "/api/v1/formateur/**",
+            "/api/v1/categorie/**",
+            "/api/v1/module/**",        // ✅ All module endpoints (GET, POST, DELETE, etc.)
+            "/api/v1/module/delete/**", // ✅ Explicitly allow delete
+            "/api/v1/chapitre/**",
+            "/api/v1/lesson/**",
             "/api/v1/demandeachat/**",
             "/api/v1/quizzes/**",
             "/api/v1/review/**",
-            "api/v1/certifications/**",
+            "/api/v1/certifications/**",
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -68,7 +66,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Updated CORS configuration
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
@@ -87,24 +85,20 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Add this CORS configuration bean
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Allow your frontend origin
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost", 
             "http://localhost:80",
-            "http://localhost:4200" // If you also run Angular locally during development
+            "http://localhost:4200"
         ));
         
-        // Allow all HTTP methods
         configuration.setAllowedMethods(Arrays.asList(
             "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
         ));
         
-        // Allow all headers
         configuration.setAllowedHeaders(Arrays.asList(
             "Authorization", 
             "Content-Type", 
@@ -116,10 +110,7 @@ public class SecurityConfig {
             "Origin"
         ));
         
-        // Allow credentials (cookies, authorization headers)
         configuration.setAllowCredentials(true);
-        
-        // How long the response from a pre-flight request can be cached
         configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
