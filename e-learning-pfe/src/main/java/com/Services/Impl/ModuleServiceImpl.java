@@ -13,17 +13,13 @@ import com.repositories.CategorieRepository;
 import com.repositories.FormateurRepository;
 import com.repositories.ModuleRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,27 +30,23 @@ public class ModuleServiceImpl implements ModuleService {
     private final ImageStorage imageStorage;
     private final FormateurRepository formateurRepository;
 
-    // Add this missing field - you're using configFile but it's not declared
-    private final com.configImage.ConfigFileImpl configFile;
+    // Remove the configFile field - we'll use only imageStorage
+    // private final com.configImage.ConfigFileImpl configFile;
 
     @Override
     public ModuleDto addModule(ModuleDto moduleDto) {
-
         System.out.println("=== ADD MODULE DEBUG ===");
         System.out.println("Module titre: " + moduleDto.getTitre());
         System.out.println("Nombre de chapitres: " + (moduleDto.getChapitres() != null ? moduleDto.getChapitres().size() : 0));
 
-        // ✅ Vérifier que la catégorie est présente
         if (moduleDto.getCategorieId() == null) {
             throw new IllegalArgumentException("categorieId ne peut pas être null");
         }
 
-        // Récupérer la catégorie
         Categorie categorie = categorieRepository.findById(moduleDto.getCategorieId())
                 .orElseThrow(() -> new RuntimeException(
                         "Categorie avec id = " + moduleDto.getCategorieId() + " non trouvée"));
 
-        // Créer le module à partir du DTO (SANS chapitres pour l'instant)
         Module module = new Module();
         module.setTitre(moduleDto.getTitre());
         module.setShort_description(moduleDto.getShort_description());
@@ -66,11 +58,8 @@ public class ModuleServiceImpl implements ModuleService {
         module.setPrixInitial(moduleDto.getPrixInitial());
         module.setDiscount(moduleDto.getDiscount() != null ? moduleDto.getDiscount() : 0);
         module.setCanAccess(moduleDto.isCanAccess());
-
-        // Associer la catégorie
         module.setCategorie(categorie);
 
-        // Vérifier et associer le formateur si présent
         if (moduleDto.getFormateurId() != null) {
             Formateur formateur = formateurRepository.findById(moduleDto.getFormateurId())
                     .orElseThrow(() -> new RuntimeException(
@@ -78,73 +67,54 @@ public class ModuleServiceImpl implements ModuleService {
             module.setFormateur(formateur);
         }
 
-        // ✅ Calculer le prix final
         double prixInitial = module.getPrixInitial();
         int discount = module.getDiscount();
         double prixFinal = prixInitial - (prixInitial * discount / 100.0);
         module.setPrixFinal(prixFinal);
-
-        // ✅ IMPORTANT: Initialiser la liste des chapitres
         module.setChapitres(new ArrayList<>());
 
-        // ✅ TRAITER LES CHAPITRES ET LESSONS SI PRÉSENTS
         if (moduleDto.getChapitres() != null && !moduleDto.getChapitres().isEmpty()) {
             System.out.println("=== PROCESSING CHAPTERS ===");
 
             for (ChapitreDto chapitreDto : moduleDto.getChapitres()) {
                 System.out.println("Processing chapter: " + chapitreDto.getTitre());
 
-                // Créer le chapitre
                 Chapitre chapitre = new Chapitre();
                 chapitre.setTitre(chapitreDto.getTitre());
                 chapitre.setOrdre(chapitreDto.getOrdre());
-
-                // ✅ Associer le module au chapitre
                 chapitre.setModule(module);
-
-                // ✅ Initialiser la liste des lessons
                 chapitre.setLessons(new ArrayList<>());
 
-                // ✅ TRAITER LES LESSONS SI PRÉSENTES
                 if (chapitreDto.getLessons() != null && !chapitreDto.getLessons().isEmpty()) {
                     System.out.println("Processing " + chapitreDto.getLessons().size() + " lessons for chapter: " + chapitreDto.getTitre());
 
                     for (LessonDto lessonDto : chapitreDto.getLessons()) {
                         System.out.println("  - Creating lesson: " + lessonDto.getTitre());
 
-                        // Créer la lesson
                         Lesson lesson = new Lesson();
                         lesson.setTitre(lessonDto.getTitre());
                         lesson.setContenu(lessonDto.getContenu() != null ? lessonDto.getContenu() : "");
                         lesson.setDescription(lessonDto.getDescription() != null ? lessonDto.getDescription() : "");
                         lesson.setDuree(lessonDto.getDuree());
                         lesson.setOrdre(lessonDto.getOrdre());
-
-                        // ✅ Associer le chapitre à la lesson
                         lesson.setChapitre(chapitre);
-
-                        // ✅ Ajouter la lesson au chapitre
                         chapitre.getLessons().add(lesson);
 
                         System.out.println("  ✓ Lesson created: " + lesson.getTitre());
                     }
                 }
 
-                // ✅ Ajouter le chapitre au module
                 module.getChapitres().add(chapitre);
-
                 System.out.println("✓ Chapter added: " + chapitre.getTitre() + " with " + chapitre.getLessons().size() + " lessons");
             }
         }
 
-        // ✅ Sauvegarder le module (cascade persiste les chapitres et lessons)
         System.out.println("=== SAVING MODULE ===");
         Module savedModule = moduleRepository.save(module);
 
         System.out.println("✓ Module saved with ID: " + savedModule.getId());
         System.out.println("✓ Number of chapters: " + savedModule.getChapitres().size());
 
-        // Vérifier les lessons
         savedModule.getChapitres().forEach(chap -> {
             System.out.println("  - Chapter: " + chap.getTitre() + " has " + chap.getLessons().size() + " lessons");
             chap.getLessons().forEach(les -> {
@@ -154,10 +124,8 @@ public class ModuleServiceImpl implements ModuleService {
 
         System.out.println("========================");
 
-        // Retourner le DTO
         ModuleDto dto = ModuleDto.toDto(savedModule);
         dto.setPrixFinal(prixFinal);
-
         return dto;
     }
 
@@ -183,9 +151,7 @@ public class ModuleServiceImpl implements ModuleService {
                 throw new RuntimeException("No file provided");
             }
             
-            // FIXED: Use imageStorage instead of configFile
             String fileName = imageStorage.store(file);
-            
             module.setImage(fileName);
             moduleRepository.save(module);
             
@@ -195,18 +161,7 @@ public class ModuleServiceImpl implements ModuleService {
         }
     }
 
-    // Add method to check file before operations
-    public void validateFileExists(String filePath) {
-        // FIXED: You need to implement this method properly
-        // Since ImageStorage doesn't have fileExists method, you'll need to add it
-        // or handle this differently
-        try {
-            // Try to load the resource to check if it exists
-            imageStorage.loadResource(filePath);
-        } catch (Exception e) {
-            throw new RuntimeException("File not found: " + filePath);
-        }
-    }
+    // REMOVED: validateFileExists method - it's not in the interface
 
     @Override
     public void deleteModuleById(Long id) {
@@ -221,14 +176,12 @@ public class ModuleServiceImpl implements ModuleService {
         Module module = moduleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Module not found"));
 
-        // Mettre à jour les champs simples
         module.setTitre(moduleDto.getTitre());
         module.setShort_description(moduleDto.getShort_description());
         module.setLong_description(moduleDto.getLong_description());
         module.setLevel(ModuleDto.convertStringToLevel(moduleDto.getLevel()));
         module.setLectureTime(moduleDto.getLectureTime());
 
-        // ✅ NE PAS ÉCRASER L'IMAGE/VIDEO SI NULL
         if (moduleDto.getImage() != null && !moduleDto.getImage().isEmpty()) {
             module.setImage(moduleDto.getImage());
         }
@@ -240,7 +193,6 @@ public class ModuleServiceImpl implements ModuleService {
         module.setPrixInitial(moduleDto.getPrixInitial());
         module.setDiscount(moduleDto.getDiscount() != null ? moduleDto.getDiscount() : 0);
         
-        // Recalculate prixFinal
         double prixInitial = module.getPrixInitial();
         int discount = module.getDiscount();
         double prixFinal = prixInitial - (prixInitial * discount / 100.0);
@@ -294,25 +246,19 @@ public class ModuleServiceImpl implements ModuleService {
             throw new RuntimeException("No video provided");
         }
 
-        // 1. Stocker le fichier vidéo avec imageStorage
         String videoName = imageStorage.store(video);
 
-        // 2. Génération de l'URL de téléchargement
         String fileVideoDownloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("api/v1/module/downloadmodulevideo/")
                 .path(videoName)
                 .toUriString();
 
-        // 3. Mise à jour de la formation
         Module module = moduleResponse.getBody();
         if (module != null) {
             module.setVideo(fileVideoDownloadUrl);
         }
 
-        // 4. Sauvegarde
         Module moduleSaved = moduleRepository.save(module);
-
-        // 5. Retourner DTO
         return ModuleDto.toDto(moduleSaved);
     }
 
