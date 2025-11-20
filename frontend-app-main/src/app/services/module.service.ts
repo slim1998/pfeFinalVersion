@@ -9,13 +9,12 @@ import { Module } from '../models/module';
   providedIn: 'root'
 })
 export class ModuleService {
-  baseUrl = environment.baseUrl + "/module"
-   baseUrl1 = environment.baseUrl + "/demandeachat"
+  baseUrl = environment.baseUrl + "/module";
+  baseUrl1 = environment.baseUrl + "/demandeachat";
 
-    constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router) { }
 
-
-  // 1. Ajouter une formation
+  // 1. Add a module
   addModule(module: Module): Observable<Module> {
     return this.http.post<Module>(`${this.baseUrl}/addmodule`, module);
   }
@@ -27,85 +26,72 @@ export class ModuleService {
     return this.http.post<Module>(`${this.baseUrl}/uploadImage/${id}`, formData);
   }
 
-  // 3. Update video
- // 1. Upload vidéo
-uploadModuleVideo(id: number, file: File) {
-  const formData = new FormData();
-  formData.append('video', file); // ⚠️ doit correspondre à @RequestParam("video")
-  return this.http.post<Module>(`${this.baseUrl}/uploadvideo/${id}`, formData);
-}
+  // 3. Upload video
+  uploadModuleVideo(id: number, file: File): Observable<Module> {
+    const formData = new FormData();
+    formData.append('video', file);
+    return this.http.post<Module>(`${this.baseUrl}/uploadvideo/${id}`, formData);
+  }
 
+  // 4. Create module with image and video
+  createModuleFull(module: Module, imageFile?: File, videoFile?: File): Observable<Module> {
+    return this.addModule(module).pipe(
+      switchMap((createdModule) => {
+        const id = createdModule.id;
 
+        if (!id) return of(createdModule);
 
-createModuleFull(module: Module, imageFile?: File, videoFile?: File): Observable<Module> {
-  return this.addModule(module).pipe(
-    switchMap((createdModule) => {
-      const id = createdModule.id;
-
-      if (!id) return of(createdModule);
-
-      const ops: Observable<Module>[] = [];
-
-      if (imageFile) {
-        ops.push(this.uploadModuleImage(id, imageFile));
-      }
-
-      if (videoFile) {
-        ops.push(this.uploadModuleVideo(id, videoFile));
-      }
-
-      if (ops.length === 0) return of(createdModule);
-
-      // Exécuter tous les uploads en parallèle et fusionner les résultats
-      return forkJoin(ops).pipe(
-        map((results) => {
-          let mergedModule = { ...createdModule };
-          results.forEach(res => {
-            mergedModule = { ...mergedModule, ...res };
-          });
-          return mergedModule;
-        })
-      );
-    })
-  );
-}
-
-
-
-    getAllModule(): Observable<Module[]> {
-      return this.http.get<Module[]>(`${this.baseUrl}/getallmodules`)
-
-    }
-
-    getModuleByid(id: any): Observable<Module> {
-      return this.http.get<Module>(`${this.baseUrl}/getmodulebyid/${id}`)
-
-    }
-
- updateModuleFull(id: number, module: Module, imageFile?: File, videoFile?: File): Observable<Module> {
-    // D'abord, on met à jour les données du module (y compris chapitres et lessons)
-    return this.updateModule(id, module).pipe(
-      switchMap((updatedModule) => {
         const ops: Observable<Module>[] = [];
 
-
-        // Si on a une nouvelle image, on l'upload
         if (imageFile) {
           ops.push(this.uploadModuleImage(id, imageFile));
         }
 
-
-        // Si on a une nouvelle vidéo, on l'upload
         if (videoFile) {
           ops.push(this.uploadModuleVideo(id, videoFile));
         }
 
+        if (ops.length === 0) return of(createdModule);
 
-        // Si pas de fichiers à uploader, on retourne directement le module mis à jour
+        return forkJoin(ops).pipe(
+          map((results) => {
+            let mergedModule = { ...createdModule };
+            results.forEach(res => {
+              mergedModule = { ...mergedModule, ...res };
+            });
+            return mergedModule;
+          })
+        );
+      })
+    );
+  }
+
+  // 5. Get all modules
+  getAllModule(): Observable<Module[]> {
+    return this.http.get<Module[]>(`${this.baseUrl}/getallmodules`);
+  }
+
+  // 6. Get module by ID
+  getModuleByid(id: number): Observable<Module> {
+    return this.http.get<Module>(`${this.baseUrl}/getmodulebyid/${id}`);
+  }
+
+  // 7. Update module with image and video
+  updateModuleFull(id: number, module: Module, imageFile?: File, videoFile?: File): Observable<Module> {
+    return this.updateModule(id, module).pipe(
+      switchMap((updatedModule) => {
+        const ops: Observable<Module>[] = [];
+
+        if (imageFile) {
+          ops.push(this.uploadModuleImage(id, imageFile));
+        }
+
+        if (videoFile) {
+          ops.push(this.uploadModuleVideo(id, videoFile));
+        }
+
         if (ops.length === 0) return of(updatedModule);
 
-
-        // Sinon, on exécute tous les uploads en parallèle
         return forkJoin(ops).pipe(
           map((results) => {
             let mergedModule = { ...updatedModule };
@@ -119,46 +105,32 @@ createModuleFull(module: Module, imageFile?: File, videoFile?: File): Observable
     );
   }
 
+  // 8. Update module (without image/video)
+  updateModule(id: number, module: Module): Observable<Module> {
+    return this.http.put<Module>(`${this.baseUrl}/updatemodule/${id}`, module);
+  }
 
+  // 9. Delete module - ✅ FIXED VERSION
+  deleteModule(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/delete/${id}`);
+  }
 
-
-
-    deleteModule(id: any) {
-      return this.http.delete(`${this.baseUrl}/delete/${id}`)
-
-    }
-
-    updateModule(id: number, module: Module): Observable<Module> {
-      return this.http.put<Module>(`${this.baseUrl}/updatemodule/${id}`, module);
-    }
-
-
-
-
-            getModulesByFormateur(formateurId: number): Observable<Module[]> {
+  // 10. Get modules by formateur
+  getModulesByFormateur(formateurId: number): Observable<Module[]> {
     return this.http.get<Module[]>(`${this.baseUrl}/getModuleByFormateur/${formateurId}`);
   }
 
-
-
-
-    getAcceptedModules(apprenantId: number): Observable<Module[]> {
-
+  // 11. Get accepted modules (purchased by apprenant)
+  getAcceptedModules(apprenantId: number): Observable<Module[]> {
     return this.http.get<Module[]>(`${this.baseUrl}/formationachetes/${apprenantId}`);
   }
 
-
-
-
-
-
-
-
-   getModuleOverview(moduleId: number): Observable<Module> {
+  // 12. Get module overview
+  getModuleOverview(moduleId: number): Observable<Module> {
     return this.http.get<Module>(`${this.baseUrl1}/${moduleId}/overview`);
   }
 
-  // Optionnel : méthode pour envoyer la demande d'achat
+  // 13. Request purchase
   requestPurchase(moduleId: number): Observable<any> {
     return this.http.post(`${this.baseUrl1}/${moduleId}/demande-achat`, {});
   }
