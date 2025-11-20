@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,10 +31,9 @@ import java.util.stream.Collectors;
 public class ModuleServiceImpl implements ModuleService {
 
     private final ModuleRepository moduleRepository;
-    private  final CategorieRepository categorieRepository;
+    private final CategorieRepository categorieRepository;
     private final ImageStorage imageStorage;
     private final FormateurRepository formateurRepository;
-
 
     @Override
     public ModuleDto addModule(ModuleDto moduleDto) {
@@ -159,13 +159,8 @@ public class ModuleServiceImpl implements ModuleService {
         return dto;
     }
 
-
-
-
-
-
     @Override
-    public ModuleDto getModuleById(Long id)  {
+    public ModuleDto getModuleById(Long id) {
         Module module = moduleRepository.findById(id).orElseThrow();
         return ModuleDto.toDto(module);
     }
@@ -173,44 +168,8 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     public List<ModuleDto> getModules() {
         List<Module> modules = moduleRepository.findAll();
-        return modules.stream().map(ModuleDto::toDto).toList(); // Java 21 or Above
+        return modules.stream().map(ModuleDto::toDto).toList();
     }
-
-//    @Override
-//    public void deleteModuleById(Long id)  {
-//        getModuleById(id);
-//        moduleRepository.deleteById(id);
-//
-//    }
-
-    @Override
-public String uploadModuleImage(MultipartFile file, Long moduleId) {
-    try {
-        Module module = moduleRepository.findById(moduleId)
-            .orElseThrow(() -> new RuntimeException("Module not found"));
-        
-        if (file == null || file.isEmpty()) {
-            throw new RuntimeException("No file provided");
-        }
-        
-        // Use your file storage service
-        String fileName = configFile.store(file);
-        
-        module.setImage(fileName);
-        moduleRepository.save(module);
-        
-        return fileName;
-    } catch (Exception e) {
-        throw new RuntimeException("Failed to upload image: " + e.getMessage());
-    }
-}
-
-// Add method to check file before operations
-public void validateFileExists(String filePath) {
-    if (filePath != null && !configFile.fileExists(filePath)) {
-        throw new FileNotFoundException("File not found: " + filePath);
-    }
-}
 
     @Override
     public void deleteModuleById(Long id) {
@@ -220,93 +179,78 @@ public void validateFileExists(String filePath) {
         moduleRepository.deleteById(id);
     }
 
-
-
     @Override
     public ModuleDto updateModule(Long id, ModuleDto moduleDto) {
         Module module = moduleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Module not found"));
 
-        // Mettre à jour les champs simples
         module.setTitre(moduleDto.getTitre());
         module.setShort_description(moduleDto.getShort_description());
         module.setLong_description(moduleDto.getLong_description());
         module.setLevel(ModuleDto.convertStringToLevel(moduleDto.getLevel()));
         module.setLectureTime(moduleDto.getLectureTime());
 
-        // ✅ NE PAS ÉCRASER L'IMAGE/VIDEO SI NULL
         if (moduleDto.getImage() != null && !moduleDto.getImage().isEmpty()) {
             module.setImage(moduleDto.getImage());
         }
-        // Sinon, on garde l'ancienne valeur (ne rien faire)
 
         if (moduleDto.getVideo() != null && !moduleDto.getVideo().isEmpty()) {
             module.setVideo(moduleDto.getVideo());
         }
-        // Sinon, on garde l'ancienne valeur (ne rien faire)
 
         module.setPrixInitial(moduleDto.getPrixInitial());
         module.setDiscount(moduleDto.getDiscount() != null ? moduleDto.getDiscount() : 0);
         module.setPrixFinal(moduleDto.getPrixFinal());
         module.setCanAccess(moduleDto.isCanAccess());
 
-        // ... reste du code pour chapitres et lessons
-
         Module saved = moduleRepository.save(module);
         return ModuleDto.toDto(saved);
     }
-
-
-
 
     public ResponseEntity<Module> findbyId(Long id) {
         if (id == null) {
             return null;
         }
         return ResponseEntity.ok(moduleRepository.findById(id).get());
-
     }
 
     @Override
-    public ModuleDto uploadModuleImage(Long IdBlog, MultipartFile image) {
+    public ModuleDto uploadModuleImage(Long moduleId, MultipartFile image) {
+        ResponseEntity<Module> moduleResponse = this.findbyId(moduleId);
+        String imageName = imageStorage.store(image);
 
-        ResponseEntity<Module> moduleResponse = this.findbyId(IdBlog);
-        String imageName=imageStorage.store(image);
-
-        String fileImageDownloadUrl= ServletUriComponentsBuilder.fromCurrentContextPath().path("api/v1/module/downloadmoduleimage/").path(imageName).toUriString();
+        String fileImageDownloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("api/v1/module/downloadmoduleimage/")
+                .path(imageName)
+                .toUriString();
 
         Module module = moduleResponse.getBody();
 
-        if (module!=null)
+        if (module != null) {
             module.setImage(fileImageDownloadUrl);
+        }
 
-        Module modulesaved = moduleRepository.save(module);
-        new ModuleDto();
-        return  ModuleDto.toDto(modulesaved);
+        Module moduleSaved = moduleRepository.save(module);
+        return ModuleDto.toDto(moduleSaved);
     }
+
     @Override
     public ModuleDto uploadModuleVideo(Long idModule, MultipartFile video) {
         ResponseEntity<Module> moduleResponse = this.findbyId(idModule);
 
-        // 1. Stocker le fichier vidéo avec imageStorage (il gère déjà MultipartFile)
         String videoName = imageStorage.store(video);
 
-        // 2. Génération de l’URL de téléchargement
         String fileVideoDownloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("api/v1/module/downloadmodulevideo/")
                 .path(videoName)
                 .toUriString();
 
-        // 3. Mise à jour de la formation
         Module module = moduleResponse.getBody();
         if (module != null) {
             module.setVideo(fileVideoDownloadUrl);
         }
 
-        // 4. Sauvegarde
-       Module moduleSaved = moduleRepository.save(module);
-
-        // 5. Retourner DTO
+        Module moduleSaved = moduleRepository.save(module);
         return ModuleDto.toDto(moduleSaved);
     }
 
@@ -320,12 +264,11 @@ public void validateFileExists(String filePath) {
 
     @Override
     public List<ModuleDto> getModulesByCategorieId(Long categorieId) {
-            return moduleRepository.findByCategorieId(categorieId)
-                    .stream()
-                    .map(ModuleDto::toDto)
-                    .toList();
+        return moduleRepository.findByCategorieId(categorieId)
+                .stream()
+                .map(ModuleDto::toDto)
+                .toList();
     }
-
 
     @Override
     public Long getNombreFormationsByFormateur(Long formateurId) {
