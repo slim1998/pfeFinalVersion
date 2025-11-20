@@ -16,6 +16,9 @@ FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
 
+# Create upload directories
+RUN mkdir -p /app/uploads/images /app/uploads/videos
+
 # Copy the built jar from build stage
 COPY --from=build /app/target/*.jar app.jar
 

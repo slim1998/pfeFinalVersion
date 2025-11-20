@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public interface ImageStorage {
     String store(MultipartFile file);
     Resource loadResource(String filename);
-
+    boolean fileExists(String filename);
 
     void deleteAll();
     void init();

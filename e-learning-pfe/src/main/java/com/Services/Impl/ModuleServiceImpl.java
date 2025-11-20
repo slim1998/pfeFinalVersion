@@ -30,10 +30,12 @@ import java.util.stream.Collectors;
 public class ModuleServiceImpl implements ModuleService {
 
     private final ModuleRepository moduleRepository;
-    private  final CategorieRepository categorieRepository;
+    private final CategorieRepository categorieRepository;
     private final ImageStorage imageStorage;
     private final FormateurRepository formateurRepository;
 
+    // Add this missing field - you're using configFile but it's not declared
+    private final com.configImage.ConfigFileImpl configFile;
 
     @Override
     public ModuleDto addModule(ModuleDto moduleDto) {
@@ -159,11 +161,6 @@ public class ModuleServiceImpl implements ModuleService {
         return dto;
     }
 
-
-
-
-
-
     @Override
     public ModuleDto getModuleById(Long id)  {
         Module module = moduleRepository.findById(id).orElseThrow();
@@ -173,16 +170,43 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     public List<ModuleDto> getModules() {
         List<Module> modules = moduleRepository.findAll();
-        return modules.stream().map(ModuleDto::toDto).toList(); // Java 21 or Above
+        return modules.stream().map(ModuleDto::toDto).toList();
     }
 
-//    @Override
-//    public void deleteModuleById(Long id)  {
-//        getModuleById(id);
-//        moduleRepository.deleteById(id);
-//
-//    }
+    @Override
+    public String uploadModuleImage(MultipartFile file, Long moduleId) {
+        try {
+            Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new RuntimeException("Module not found"));
+            
+            if (file == null || file.isEmpty()) {
+                throw new RuntimeException("No file provided");
+            }
+            
+            // FIXED: Use imageStorage instead of configFile
+            String fileName = imageStorage.store(file);
+            
+            module.setImage(fileName);
+            moduleRepository.save(module);
+            
+            return fileName;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload image: " + e.getMessage());
+        }
+    }
 
+    // Add method to check file before operations
+    public void validateFileExists(String filePath) {
+        // FIXED: You need to implement this method properly
+        // Since ImageStorage doesn't have fileExists method, you'll need to add it
+        // or handle this differently
+        try {
+            // Try to load the resource to check if it exists
+            imageStorage.loadResource(filePath);
+        } catch (Exception e) {
+            throw new RuntimeException("File not found: " + filePath);
+        }
+    }
 
     @Override
     public void deleteModuleById(Long id) {
@@ -191,8 +215,6 @@ public class ModuleServiceImpl implements ModuleService {
         }
         moduleRepository.deleteById(id);
     }
-
-
 
     @Override
     public ModuleDto updateModule(Long id, ModuleDto moduleDto) {
@@ -210,60 +232,72 @@ public class ModuleServiceImpl implements ModuleService {
         if (moduleDto.getImage() != null && !moduleDto.getImage().isEmpty()) {
             module.setImage(moduleDto.getImage());
         }
-        // Sinon, on garde l'ancienne valeur (ne rien faire)
 
         if (moduleDto.getVideo() != null && !moduleDto.getVideo().isEmpty()) {
             module.setVideo(moduleDto.getVideo());
         }
-        // Sinon, on garde l'ancienne valeur (ne rien faire)
 
         module.setPrixInitial(moduleDto.getPrixInitial());
         module.setDiscount(moduleDto.getDiscount() != null ? moduleDto.getDiscount() : 0);
-        module.setPrixFinal(moduleDto.getPrixFinal());
+        
+        // Recalculate prixFinal
+        double prixInitial = module.getPrixInitial();
+        int discount = module.getDiscount();
+        double prixFinal = prixInitial - (prixInitial * discount / 100.0);
+        module.setPrixFinal(prixFinal);
+        
         module.setCanAccess(moduleDto.isCanAccess());
-
-        // ... reste du code pour chapitres et lessons
 
         Module saved = moduleRepository.save(module);
         return ModuleDto.toDto(saved);
     }
 
-
-
-
     public ResponseEntity<Module> findbyId(Long id) {
         if (id == null) {
-            return null;
+            return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(moduleRepository.findById(id).get());
-
+        Module module = moduleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Module not found"));
+        return ResponseEntity.ok(module);
     }
 
     @Override
     public ModuleDto uploadModuleImage(Long IdBlog, MultipartFile image) {
-
         ResponseEntity<Module> moduleResponse = this.findbyId(IdBlog);
-        String imageName=imageStorage.store(image);
+        
+        if (image == null || image.isEmpty()) {
+            throw new RuntimeException("No image provided");
+        }
+        
+        String imageName = imageStorage.store(image);
 
-        String fileImageDownloadUrl= ServletUriComponentsBuilder.fromCurrentContextPath().path("api/v1/module/downloadmoduleimage/").path(imageName).toUriString();
+        String fileImageDownloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("api/v1/module/downloadmoduleimage/")
+                .path(imageName)
+                .toUriString();
 
         Module module = moduleResponse.getBody();
 
-        if (module!=null)
+        if (module != null) {
             module.setImage(fileImageDownloadUrl);
+        }
 
         Module modulesaved = moduleRepository.save(module);
-        new ModuleDto();
-        return  ModuleDto.toDto(modulesaved);
+        return ModuleDto.toDto(modulesaved);
     }
+
     @Override
     public ModuleDto uploadModuleVideo(Long idModule, MultipartFile video) {
         ResponseEntity<Module> moduleResponse = this.findbyId(idModule);
 
-        // 1. Stocker le fichier vidéo avec imageStorage (il gère déjà MultipartFile)
+        if (video == null || video.isEmpty()) {
+            throw new RuntimeException("No video provided");
+        }
+
+        // 1. Stocker le fichier vidéo avec imageStorage
         String videoName = imageStorage.store(video);
 
-        // 2. Génération de l’URL de téléchargement
+        // 2. Génération de l'URL de téléchargement
         String fileVideoDownloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("api/v1/module/downloadmodulevideo/")
                 .path(videoName)
@@ -276,7 +310,7 @@ public class ModuleServiceImpl implements ModuleService {
         }
 
         // 4. Sauvegarde
-       Module moduleSaved = moduleRepository.save(module);
+        Module moduleSaved = moduleRepository.save(module);
 
         // 5. Retourner DTO
         return ModuleDto.toDto(moduleSaved);
@@ -292,12 +326,11 @@ public class ModuleServiceImpl implements ModuleService {
 
     @Override
     public List<ModuleDto> getModulesByCategorieId(Long categorieId) {
-            return moduleRepository.findByCategorieId(categorieId)
-                    .stream()
-                    .map(ModuleDto::toDto)
-                    .toList();
+        return moduleRepository.findByCategorieId(categorieId)
+                .stream()
+                .map(ModuleDto::toDto)
+                .toList();
     }
-
 
     @Override
     public Long getNombreFormationsByFormateur(Long formateurId) {
